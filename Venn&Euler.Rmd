@@ -1,0 +1,45 @@
+---
+title: "Venn&Euler diagrams in R"
+author: "drozdovapb"
+date: "01/31/2015"
+output: html_document
+---
+
+Время от времени я сталкиваюсь с необходимостью визуализировать пересечение множеств, т.е. построить диаграмму Венна или Эйлера.
+
+Немного кода для установки пакетов.
+```{r}
+source("http://bioconductor.org/biocLite.R")
+
+#install.packages("bvenn")
+#install.packages("colorfulVennPlot")
+#install.packages("eVenn")
+#install.packages("VennDiagram")
+#install.packages("venneuler")
+#install.packages("Vennerable", repos="http://R-Forge.R-project.org")
+```
+
+Кроме того, диаграммы Венна может строить пакет limma, но это не главная его специальность.
+
+
+
+```{r, echo=FALSE}
+
+```
+
+
+Источники ценной информации: 
+
+[Stackoverflow] (http://stackoverflow.com/questions/1428946/venn-diagrams-with-r)
+
+bvenn http://cran.r-project.org/web/packages/bvenn/index.html
+
+colorfulVennPlot http://cran.r-project.org/web/packages/colorfulVennPlot/index.html
+
+eVenn http://cran.r-project.org/web/packages/eVenn/index.html
+
+VennDiagram http://cran.r-project.org/web/packages/VennDiagram/VennDiagram.pdf
+
+Venneuler http://cran.r-project.org/web/packages/venneuler/index.html
+
+https://www.biostars.org/p/77362/: venn from the gplots package
