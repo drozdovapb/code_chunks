@@ -1,0 +1,102 @@
+---
+title: "r_15_lab01(subsetting)"
+author: "drozdovapb"
+date: "02/14/2015"
+output: html_document
+---
+###Занятие 1, часть вторая: subsetting
+
+
+####Базовые команды
+
+[ ] -- вектор; обычно (!) того же класса
+[[ ]] -- список или таблица; не обязательно объект того же класса
+$ -- поименованный объект; не обязательно объект того же класса
+
+[ ] для векторов
+Внутри [] могут быть:
+целочисленный вектор
+логическое выражение
+
+[ ] для матриц и таблиц
+[Строка, столбец]
+Один из может отсутствовать
+Если извлечь одну 
+Один из матрицы излечь [a, b], получаем вектор длиной 1. Если этого нужно избежать, drop = FALSE.
+
+[ ] для списков
+Выдаёт список.
+
+[[ ]]
+Внутри может быть число, строка
+
+Вложенные листы: [[ ]] [[ ]] 
+
+[[, $: частичное совпадение имени. Для [[ нужно exact = FALSE
+
+
+$
+любой с поименованными измерениями
+
+
+NAs
+x[!is.na(x)]
+complete.cases(): можно для >= 2 векторов
+
+[ -n,  ]
+
+####aggregate
+?aggregate
+
+```{r}
+aggregate(Solar.R ~ Month, data = airquality, FUN = sum)
+
+```
+
+
+
+####Reshape2: длинный <-> широкий формат
+```{r}
+library(reshape2)
+data(airquality)
+head(melt(airquality))
+longaq <- melt(airquality, id.vars=c("Month"))
+aqwide <- dcast(longaq, Month ~ variable)
+head(aqw)
+
+```
+
+substring
+grep
+
+$ (named vs unnamed dimensions)
+
+aggregate
+
+
+####Полезные страницы
+
+Computing for Data Analysis
+
+Reshape2: http://seananderson.ca/2013/10/19/reshape.html
+
+ddply: http://www.cerebralmastication.com/2009/08/a-fast-intro-to-plyr-for-r/
+http://www.cookbook-r.com/Manipulating_data/Summarizing_data/
+
+#####
+ddply => apply
+doBy => apply
+
+
+####Некоторые примеры из plyr: ddply
+
+Naming conventions: first two letters
+
+
+```{r}
+
+
+```
+
+The author of PLYR is Hadley Wickham who is also the man behind GGPLOT2. 
+

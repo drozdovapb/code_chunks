@@ -1,0 +1,33 @@
+---
+title: "Reading&Writing"
+date: "02/19/2015"
+output: html_document
+---
+
+0. scan
+what would you do if...
+scan()
+
+0.1 RKward
+
+1. Reading
+1.1. Reading tables (decimal point etc) + usual problems + what should R consider as NA
+read.table
+read.csv; read.csv2
+
+xls: gdata; xlsReadWrite; xlsx
+see http://www.milanor.net/blog/?p=779
+
++ reading data from the net: curl etc
+
+data.table (fread)
+
+1.2. Reading images
+the jpeg package
+
+2. Writing data
+2.1. Output tables in html: pandoc
+2.2. Output tables as csv etc.
+
+Hometask:
+debug these tables ;)
