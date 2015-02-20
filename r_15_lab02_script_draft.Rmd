@@ -4,30 +4,153 @@ date: "02/19/2015"
 output: html_document
 ---
 
+-1 
+
 0. scan
 what would you do if...
+
+```{r}
 scan()
+scan(what = "character")
+```
+BUT IT'S NOT REPRODUCIBLE
 
 0.1 RKward
 
-1. Reading
-1.1. Reading tables (decimal point etc) + usual problems + what should R consider as NA
-read.table
-read.csv; read.csv2
+https://rkward.kde.org/
+$ apt-get install rkward
 
-xls: gdata; xlsReadWrite; xlsx
-see http://www.milanor.net/blog/?p=779
+1. Reading
+1.1. Reading tables (decimal point etc) + usual problems + 
+
+No matter whether found on the Net or in a local file.
+
+```{r}
+#download.file("https://raw.githubusercontent.com/drozdovapb/r-15-data/master/Table01.csv")
+#download.file("https://raw.githubusercontent.com/drozdovapb/r-15-data/master/Table01.csv", 
+#              destfile='Table01.csv')
+download.file("https://raw.githubusercontent.com/drozdovapb/r-15-data/master/lab02/Table01.csv", destfile='Table01.csv', method='curl')
+
+download.file("https://raw.githubusercontent.com/drozdovapb/r-15-data/master/lab02/Tables.zip", 
+              destfile="Tables.zip", method='curl')
+unzip('Tables.zip')
+```
 
 + reading data from the net: curl etc
 
+Problem: never tells the file doesn't exist
+like here:
+
+```{r}
+download.file("https://raw.githubusercontent.com/drozdovapb/r-15-data/master/Table02.csv2", 
+              destfile='Table02.csv2', method='curl')
+download.file("https://raw.githubusercontent.com/drozdovapb/r-15-data/master/Table03.txt", 
+              destfile='Table03.txt', method='curl')
+
+```
+
+
+
+read.table
+read.csv; read.csv2; read.delim
+
+```{r}
+
+table01 <- read.table('Table01.csv') ###Only 1 column
+str(table01)
+
+table01 <- read.table('Table01.csv', sep=',') #ok but why factors?
+str(table01)
+table01 <- read.table('Table01.csv', sep=',', head = T) #ok but why factors in the 1st column?
+str(table01)
+
+table01 <- read.table('Table01.csv', sep=',', head = T, stringsAsFactors = F) #ok but why factors?
+
+#OR
+table01 <- read.csv('Table01.csv') #the same problem with factors
+str(table01)
+```
+
+DELIMITERS!!!!
+, vs .
+And how to change 
+
+typical errors
+
+
+```{r}
+#install.packages('xlsx')
+library(xlsx)
+read.xlsx('Table04.xlsx', sheetIndex = 1)
+```
+xls: gdata; xlsReadWrite; xlsx
+see http://www.milanor.net/blog/?p=779
+
+
+
+what should R consider as NA
+
+comment.char
+skip
+
+```{r}
+
+readLines('Table05.txt')
+read.table('Table05.txt')
+
+
+#read.table('Table06.txt')
+readLines('Table06.txt')
+```
+
+
 data.table (fread)
+
+
+```{r}
+#install.packages('data.table')
+library(data.table)
+
+system.time(read.table('Table01.csv'))
+system.time(fread('Table01.csv'))
+
+download.file("https://raw.githubusercontent.com/drozdovapb/r-15-data/master/lab02/Table13.txt", 
+              destfile = 'Table13.txt', method='curl')
+
+
+system.time(read.table('Table13.txt'))
+system.time(fread('Table13.txt'))
+
+```
 
 1.2. Reading images
 the jpeg package
 
-2. Writing data
-2.1. Output tables in html: pandoc
-2.2. Output tables as csv etc.
+```{r}
+#install.packages('jpeg')
+library(jpeg)
+myjpeg <- download.file("http://www.pmglobalpm.com/wp-content/uploads/2013/02/compliance-150x150.jpg", destfile = 'myjpeg.jpeg', method='curl')
+myimg <- readJPEG('myjpeg.jpeg')
+    
+greencat <- myimg[,,2]
+image(greencat)
+image(t(greencat))
+image(greencat[nrow(greencat):1,])
+image(t(greencat[nrow(greencat):1,]))
+```
 
 Hometask:
 debug these tables ;)
+
+download zip!!! +1 point
+1. csv with tab separator +1
+(2. csv2 with ; separators )
+(3. cvs with commas as decimal separator) +2
+(4. additional header with # (or many headers) #skip) +2
+5. StringsAsFactors
+
+
+http://www.r-bloggers.com/using-r-common-errors-in-table-import/
+
+xlsx:
+http://tuxette.nathalievilla.org/?p=1380&lang=en
