@@ -1,0 +1,509 @@
+---
+title: "Variations in Peterhof strains"
+author: "drozdovapb"
+date: "12/15/2014"
+output: html_document
+---
+
+##File input
+
+```{r}
+setwd("/media/drozdovapb/big/Peterhof_strains_seq/SNPs/") #change it to ur path
+fifteenV <- read.csv("./15V_coding/15V-snpEff_genes.txt", head=T, sep="\t", skip = 1, row.names=1)
+twentyfive <- read.csv( "./25-25-coding/25-25-snpEff_genes.txt", head=T, sep="\t", skip = 1, row.names=1)
+oneB <- read.csv("./1B_coding/1B-snpEff_genes.txt", head=T, sep="\t", skip = 1, row.names=1)
+seventyfour <- read.csv("./74_coding/snpEff_genes.txt", head=T, sep="\t", skip = 1, row.names=1)
+
+setwd("/media/drozdovapb/big/Peterhof_strains_seq/SNPs/12-15-SNPs_R/") #change it to ur path
+```
+
+!!! Corrected IMP2' to IMP2 in the last two files __manually__
+
+##15V-P4: how are Peterhof strains different?
+
+###Stop codons
+```{r}
+names(fifteenV)[24:35] <- sapply(names(fifteenV)[24:35], substr, 8, 1000)
+fifteenV[fifteenV$stop_gained.>0, ][c(1,2,32)]
+fifteenV[fifteenV$stop_lost.>0,][c(1,2,33)]
+```
+
+##Most variable genes
+
+```{r}
+x <- table(fifteenV$Bases.affected..GENE.); x
+
+hcum <- h <- hist(fifteenV$Bases.affected..GENE., breaks=50, col='blue', plot=FALSE)
+hcum$counts <- cumsum(hcum$counts)
+plot(hcum, main="")
+plot(h, add=T, col="grey")
+
+d <- density(x)
+#lines(x = d$x, y = d$y * length(x) * diff(h$breaks)[1], lwd = 2)
+#lines(x = d$x, y = cumsum(d$y)/max(cumsum(d$y)) * length(x), lwd = 2)
+
+
+subsetFift <- fifteenV[order(fifteenV$Bases.affected..GENE., decreasing = T),][c(1,2,6)]
+subsetFift[subsetFift$Bases.affected..GENE. >9,]
+```
+
+##The biggest number of missense mutations
+
+```{r}
+hist(fifteenV$missense_variant., breaks=50, col='gray')
+
+missenseFift <- fifteenV[order(fifteenV$missense_variant., decreasing = T),][c(1,2,26)]
+
+missenseFift[missenseFift$missense_variant.>5,]
+write.table(missenseFift[missenseFift$missense_variant.>5,], 'miss.txt')
+
+```
+
+
+
+#twentyfive
+
+```{r}
+names(twentyfive)[24:35] <- sapply(names(twentyfive)[24:35], substr, 8, 1000)
+twentyfive[twentyfive$stop_gained.>0, ][c(1,2,32)]
+
+
+```
+
+#seventyfour
+```{r}
+#names(seventyfour)[24:35] <- sapply(names(seventyfour)[24:35], substr, 8, 1000)
+table(seventyfour$Count..stop_gained.)
+seventyfour[seventyfour$Count..stop_gained.>0, ][c(1,2,28)]
+seventyfour[seventyfour$Count..stop_lost.>0,][c(1,2,29)]
+```
+
+
+
+Does our analysis differ from Fitzpatrick et al., 2011?
+
+```{r}
+stops_74_our <- row.names(seventyfour[seventyfour$Count..stop_gained.>0,])
+stops_74_fitz <- c("YAL056W", "YAR015W", "YAR028W", "YAR031W", 
+                   "YBL037W", "YDR007W", "YDR147W", 
+                   "YFR057W", "YGR159C", "YGR249W", "YGR281W", "YGR283W", 
+                   "YHL003C", "YHR143W", "YIR028W", "YKL062W", "YKR056W", "YLR313C")
+
+intersect(stops_74_our, stops_74_fitz)
+
+setdiff(stops_74_our, stops_74_fitz)
+setdiff(stops_74_fitz, stops_74_our)
+```
+
+
+Closer look at 15V
+
+```{r}
+fifteenV$freq.miss <- fifteenV$missense_variant./fifteenV$Length..GENE. *100
+hist(fifteenV$freq.miss, col='blue', breaks=100, xlab = 'percent changes')
+
+freqMissenseFift <- fifteenV[order(fifteenV$freq.miss, decreasing = T),][c(1,2,26,36)]
+
+head(freqMissenseFift)
+
+freqMissenseFift$GeneName <- as.character(freqMissenseFift$GeneName)
+freqMissenseFift$ORF <- row.names(freqMissenseFift)
+missenseRealGenes <- subset(freqMissenseFift, freqMissenseFift$GeneName != freqMissenseFift$ORF)
+
+head(missenseRealGenes, n = 100)
+```
+
+
+```{r}
+fifteenV$freq.sub <- fifteenV$Bases.affected..GENE. / fifteenV$Length..GENE. *100
+freqSub <- fifteenV[order(fifteenV$freq.sub, decreasing = T),][c(1,2,37)]
+freqSub[freqSub$freq.sub > 1,]
+```
+
+
+#SNP density
+
+---
+title: "GenomicRanges lesson"
+author: "Gaik Tamazian"
+date: "16 May 2015"
+output: html_document
+---
+
+First, we load the original data:
+
+- chromosome lengths;
+- SNVs.
+
+```{r read.data}
+library(GenomicRanges)
+setwd("/media/drozdovapb/big/Peterhof_strains_seq/SNPs/")
+chromosome.length.df <- read.table('../Reference/S288c.sizes', as.is=TRUE)
+```
+
+```{r}
+setwd("/media/drozdovapb/big/Peterhof_strains_seq/SNPs/")
+snv.df <- read.table('15V.snps.no-rep.vcf', as.is=TRUE)
+```
+
+Here are the numbers of chromosomes and SNVs processed:
+
+- `r nrow(chromosome.length.df)` chromosomes;
+- `r nrow(snv.df)` SNVs.
+
+First, we create a `Seqinfo` object describing yeast chromosomes.
+
+```{r create.seqinfo}
+yeast.seqinfo <- Seqinfo(seqnames=chromosome.length.df$V1,
+                         seqlengths=chromosome.length.df$V2,
+                         isCircular=rep(FALSE, nrow(chromosome.length.df)),
+                         genome='yeast')
+```
+
+Next, we create GRanges objects for chromosome lengths and SNVs.
+```{r create.ranges}
+chromosome.ranges <- GRanges(seqnames=chromosome.length.df$V1,
+                             ranges=IRanges(start=rep(1, nrow(chromosome.length.df)), end=chromosome.length.df$V2), seqinfo=yeast.seqinfo)
+
+# note that we add 'chr' prefixes to chromosome names
+snv.ranges <- GRanges(seqnames=snv.df$V1,
+                      #seqnames=paste('chr', snv.df$V1, sep='')
+                      ranges=IRanges(start=snv.df$V2, end=snv.df$V2),
+                      seqinfo=yeast.seqinfo)
+```
+
+Now we create non-overlapping window ranges for yeast chromosomes.
+```{r eval=FALSE}
+windows <- GRanges(seqinfo=yeast.seqinfo)
+window.size <- 1000
+pb <- txtProgressBar(min=0, max=nrow(chromosome.length.df), style=3)
+for (i in 1:nrow(chromosome.length.df)) {
+  chr.name <- chromosome.length.df$V1[i]
+  chr.length <- chromosome.length.df$V2[i]
+  
+  temp <- GRanges(seqnames=chr.name,
+                  ranges=IRanges(start=seq(1, chr.length-window.size, by=window.size), width=window.size),
+                  seqinfo=yeast.seqinfo)
+  last.position <- end(temp)[length(temp)]
+  last.interval <- GRanges(seqnames=chr.name,
+                           ranges=IRanges(start=last.position + 1,
+                                          end=chr.length),
+                           seqinfo=yeast.seqinfo)
+  temp <- c(temp, last.interval)
+  windows <- c(windows, temp)
+  setTxtProgressBar(pb, i)
+}
+close(pb)
+```
+
+
+```{r create.windows}
+windows <- GRanges(seqinfo=yeast.seqinfo)
+window.size <- 1000
+#pb <- txtProgressBar(min=0, max=nrow(chromosome.length.df), style=3)
+for (i in 1:nrow(chromosome.length.df)) {
+  chr.name <- chromosome.length.df$V1[i]
+  chr.length <- chromosome.length.df$V2[i]
+  
+  temp <- GRanges(seqnames=chr.name,
+                  ranges=IRanges(start=seq(1, chr.length-window.size, by=window.size), width=window.size),
+                  seqinfo=yeast.seqinfo)
+  last.position <- end(temp)[length(temp)]
+  last.interval <- GRanges(seqnames=chr.name,
+                           ranges=IRanges(start=last.position + 1,
+                                          end=chr.length),
+                           seqinfo=yeast.seqinfo)
+  temp <- c(temp, last.interval)
+  windows <- c(windows, temp)
+#  setTxtProgressBar(pb, i)
+}
+#close(pb)
+```
+
+Calculate SNV density in genome windows.
+
+```{r calculate.snv.density}
+window.snv.counts <- countOverlaps(windows, snv.ranges)
+snv.density <- window.snv.counts / width(windows)
+```
+
+Plot the density values.
+
+```{r plot.snv.density}
+snv.density.bins <- hist(snv.density, breaks=40, plot=FALSE)
+plot(snv.density.bins$mids * 100, snv.density.bins$counts/sum(snv.density.bins$counts) * 100, type='o', pch=20,
+     xlab='SNV density (%)',
+     ylab='Percentage of windows')
+```
+
+```{r}
+snp.cov <- coverage(snv.ranges)
+snp.runmean <- runmean(snp.cov, 1000)
+plot(as.numeric(snp.runmean[[4]]), type="l")
+library(ggbio)
+autoplot(snp.runmean)
+```
+
+```{r}
+window.snv <- findOverlaps(query = windows, subject = snv.ranges)
+subjectHits(x = window.snv)
+
+
+
+
+```
+
+https://www.biostars.org/p/69748/
+```{r}
+snps <- snv.df[,1:2]
+names(snps) <- c('chr', 'pos')
+#snps$chr <- with(snps, factor(chr, levels=paste(c("I", "II", "III", "IV", "V",
+#            "VI", "VII", "VIII", "IX", "X", 
+#            "XI", "XII", "XIII", "XIV", "XV", "XVI", "Mito"), 
+#            sep=""), ordered=TRUE))
+snps$chr <- as.factor(snps$chr)
+
+snps$chr <- factor(snps$chr, levels = c("I", "II", "III", "IV", "V",
+                      "VI", "VII", "VIII", "IX", "X", 
+                      "XI", "XII", "XIII", "XIV", "XV", "XVI", "Mito"))
+
+#
+chromosome.length.df$chr <- as.factor(chromosome.length.df$V1)
+#vline.data <- data.frame(l = chromosome.length.df$V2,
+#                        chr = 
+
+```
+
+
+```{r plot}
+library(ggplot2)
+newlev <- factor(snps$chr, levels = c(" ", levels(snps$chr)))
+
+
+plottedSnps <- ggplot(snps) + 
+    geom_histogram(aes(x=pos), binwidth=1000, fill='darkviolet') +
+    ggtitle("SNP density for 15V-P4") + 
+    xlab("Genomic position (bins 1 kb)") + ylab("SNP count") +
+    ylim(c(0,25)) +
+    xlim(c(-10**4,1542000)) +
+    theme_bw() + 
+    geom_vline(data = chromosome.length.df, 
+               aes(xintercept = V2), colour = 'grey', linetype = "longdash") +
+    geom_vline(aes(xintercept = 0), colour = 'grey', linetype = "longdash") +
+    facet_wrap(~chr, ncol = 3, drop = FALSE) 
+
+
+print(plottedSnps)
+```
+
+
+```{r}
+#png("./15V_SNPs_plotted.png",width = 1240, height = 1753)
+pdf('./15V_SNPs_plotted.pdf', paper='a4')
+print(plottedSnps)
+dev.off()
+```
+
+
+
+#Now with one of the hybrid strains
+
+```{r 1B_to_S288c}
+rm(list=ls())
+setwd("/media/drozdovapb/big/Peterhof_strains_seq/SNPs/")
+chromosome.length.df <- read.table('../Reference/S288c.sizes', as.is=TRUE)
+snv.288.df <- read.table('1B.snps.no-rep.vcf', as.is=TRUE)
+
+snps.288 <- snv.288.df[,1:2]
+names(snps.288) <- c('chr', 'pos')
+
+snps.288$chr <- factor(snps.288$chr, levels = c("I", "II", "III", "IV", "V",
+                      "VI", "VII", "VIII", "IX", "X", 
+                      "XI", "XII", "XIII", "XIV", "XV", "XVI", "Mito"))
+
+chromosome.length.df$chr <- as.factor(chromosome.length.df$V1)
+
+plottedSnps <- ggplot(snps.288) + 
+    geom_histogram(aes(x=pos), binwidth=1000, fill='darkviolet') +
+    ggtitle("SNP density for 1B-D1606") + 
+   xlab("Genomic position (bins 1 kb)") + ylab("SNP count") +
+   ylim(c(0,25)) +
+   xlim(c(-10**4,1542000)) +
+    facet_wrap(~chr, ncol = 3) +
+   theme_bw() + 
+    geom_vline(data = chromosome.length.df, 
+               aes(xintercept = V2), colour = 'grey', linetype = "longdash") +
+    geom_vline(aes(xintercept = 0), colour = 'grey', linetype = "longdash")#
+
+print(plottedSnps)
+
+
+#png("./1B_SNPs_to_288C_plotted.png")
+pdf("./1B_SNPs_to_288C_plotted.pdf", paper='a4')
+print(plottedSnps)
+dev.off()
+
+```
+
+
+```{r 1B_to_15V}
+#rm(list=ls())
+#setwd("/media/drozdovapb/big/Peterhof_strains_seq/SNPs/")
+#chromosome.length.df <- read.table('../Reference/S288c.sizes', as.is=TRUE)
+snv.15V.df <- rbind(read.table('Compare_vcf/15V_but_not_1B.vcf', as.is=TRUE),
+            read.table('Compare_vcf/1B_but_not_15V.vcf', as.is=TRUE))
+
+
+snps.15V <- snv.15V.df[,1:2]
+names(snps.15V) <- c('chr', 'pos')
+
+snps.15V$chr <- factor(snps.15V$chr, levels = c("I", "II", "III", "IV", "V",
+                      "VI", "VII", "VIII", "IX", "X", 
+                      "XI", "XII", "XIII", "XIV", "XV", "XVI", "Mito"))
+
+plottedSnps <- ggplot(snps.15V) + 
+    geom_histogram(aes(x=pos), binwidth=1000, colour='green4') +
+    ggtitle("SNP density for 1B-D1606") + 
+    xlab("Genomic position (bins 1 kb)") + ylab("SNP count") +
+    ylim(c(0,25)) +
+    xlim(c(-10**4,1542000)) +
+   facet_wrap(~chr, ncol = 3) +
+    theme_bw() + 
+    geom_vline(data = chromosome.length.df, 
+               aes(xintercept = V2), colour = 'grey', linetype = "longdash") +
+    geom_vline(aes(xintercept = 0), colour = 'grey', linetype = "longdash")
+
+#png("./1B_SNPs_to_15V_plotted.png")
+#print(plottedSnps)
+#dev.off()
+
+
+
+plottedSnps <- ggplot(snps.15V) + 
+    geom_histogram(aes(x=pos), binwidth=1000, fill='green4', alpha=.8) +
+    geom_histogram(data=snps.288, aes(x=pos), binwidth=1000, fill='darkviolet',
+                   alpha=.8) +
+    ggtitle("SNP density for 1B-D1606") + 
+    xlab("Genomic position (bins 1 kb)") + ylab("SNP count") +
+    ylim(c(0,25)) +
+    xlim(c(-10**4,1542000)) +
+    facet_wrap(~chr, ncol = 3) +
+    theme_bw() + 
+    geom_vline(data = chromosome.length.df, 
+               aes(xintercept = V2), colour = 'grey', linetype = "longdash") +
+    geom_vline(aes(xintercept = 0), colour = 'grey', linetype = "longdash")
+
+print(plottedSnps)
+
+
+#png("./1B_SNPs_plotted.png")
+pdf("./1B_SNPs_plotted.pdf", page='a4')
+print(plottedSnps)
+dev.off()
+
+```
+
+
+
+
+#sanity check: 25-25
+
+
+```{r 25-25 distribution}
+snv.15V.df <- rbind(read.table('Compare_vcf/25b_but_not_15V.vcf', as.is=TRUE),
+            read.table('Compare_vcf/15V_but_not_25b.vcf', as.is=TRUE))
+
+chromosome.length.df <- read.table('../Reference/S288c.sizes', as.is=TRUE)
+
+snv.288.df <- read.table('25b.snps.no-rep.vcf', as.is=TRUE)
+
+snps.288 <- snv.288.df[,1:2]
+names(snps.288) <- c('chr', 'pos')
+
+snps.288$chr <- factor(snps.288$chr, levels = c("I", "II", "III", "IV", "V",
+                      "VI", "VII", "VIII", "IX", "X", 
+                      "XI", "XII", "XIII", "XIV", "XV", "XVI", "Mito"))
+
+chromosome.length.df$chr <- as.factor(chromosome.length.df$V1)
+
+
+snps.15V <- snv.15V.df[,1:2]
+names(snps.15V) <- c('chr', 'pos')
+
+snps.15V$chr <- factor(snps.15V$chr, levels = c("I", "II", "III", "IV", "V",
+                      "VI", "VII", "VIII", "IX", "X", 
+                      "XI", "XII", "XIII", "XIV", "XV", "XVI", "Mito"))
+
+
+plottedSnps <- ggplot(snps.15V) + 
+    geom_histogram(aes(x=pos), binwidth=1000, fill='green4', alpha=.8) +
+    geom_histogram(data=snps.288, aes(x=pos), binwidth=1000, fill='darkviolet',
+                   alpha=.8) +
+    ggtitle("SNP density for 25-25-2V-P3982") + 
+    xlab("Genomic position (bins 1 kb)") + ylab("SNP count") +
+    ylim(c(0,25)) +
+    xlim(c(-10**4,1542000)) +
+    facet_wrap(~chr, ncol = 3) +
+    theme_bw() + 
+    geom_vline(data = chromosome.length.df, 
+               aes(xintercept = V2), colour = 'grey', linetype = "longdash") +
+    geom_vline(aes(xintercept = 0), colour = 'grey', linetype = "longdash")
+
+print(plottedSnps)
+
+
+#png("./25_SNPs_plotted.png")
+pdf("./25_SNPs_plotted.pdf", page='a4')
+print(plottedSnps)
+dev.off()
+
+```
+
+
+```{r 25-25 distribution}
+snv.15V.df <- rbind(read.table('Compare_vcf/74_but_not_15V.vcf', as.is=TRUE),
+            read.table('Compare_vcf/15V_but_not_74.vcf', as.is=TRUE))
+
+snv.288.df <- read.table('74.snps.no-rep.vcf', as.is=TRUE)
+
+snps.288 <- snv.288.df[,1:2]
+names(snps.288) <- c('chr', 'pos')
+
+snps.288$chr <- factor(snps.288$chr, levels = c("I", "II", "III", "IV", "V",
+                      "VI", "VII", "VIII", "IX", "X", 
+                      "XI", "XII", "XIII", "XIV", "XV", "XVI", "Mito"))
+
+chromosome.length.df$chr <- as.factor(chromosome.length.df$V1)
+
+
+snps.15V <- snv.15V.df[,1:2]
+names(snps.15V) <- c('chr', 'pos')
+
+snps.15V$chr <- factor(snps.15V$chr, levels = c("I", "II", "III", "IV", "V",
+                      "VI", "VII", "VIII", "IX", "X", 
+                      "XI", "XII", "XIII", "XIV", "XV", "XVI", "Mito"))
+
+
+plottedSnps <- ggplot(snps.15V) + 
+    geom_histogram(aes(x=pos), binwidth=1000, fill='green4', alpha=.8) +
+    geom_histogram(data=snps.288, aes(x=pos), binwidth=1000, fill='darkviolet',
+                   alpha=.8) +
+    ggtitle("SNP density for 74-D694") + 
+    xlab("Genomic position (bins 1 kb)") + ylab("SNP count") +
+    ylim(c(0,25)) +
+    xlim(c(-10**4,1542000)) +
+    facet_wrap(~chr, ncol = 3) +
+    theme_bw() + 
+    geom_vline(data = chromosome.length.df, 
+               aes(xintercept = V2), colour = 'grey', linetype = "longdash") +
+    geom_vline(aes(xintercept = 0), colour = 'grey', linetype = "longdash")
+
+print(plottedSnps)
+
+
+#png("./74_SNPs_plotted.png")
+pdf("./74_SNPs_plotted.pdf", paper = 'a4')
+print(plottedSnps)
+dev.off()
+
+```
