@@ -41,9 +41,14 @@ read_data <- function(path) {
     A <- read.delim(path, skip = 31, stringsAsFactors=F)
     #get rid of everything except chromosomes
     A <- A[startsWith(A$ID, "chr"), ]
+    #get rid of non-informative probes
+    #please note that you have to have the probes file in the same folder--or change to ur path
+    good_probes <- read.delim("./probes", stringsAsFactors = F)$ProbeID
+    A <- A[(A$ID %in% good_probes),]
     # get rid of flagged values
     A <- A[A$Flags == 0,]
     A <- A[A$Dia. == 45 | A$Dia. == 50 | A$Dia. == 55,]
+    
     
     #replace chr1-9 with chr chr01-chr09 in order to be able to sort alphabetically
     A$ID <- sub(pattern = "chr(.):", replacement = "chr0\\1:", x = A$ID)
@@ -84,7 +89,6 @@ preprocess_data <- function(A) {
             lower2 <- Astats$mu[2] - 3 * Astats$sigma[2]
             upper2 <- Astats$mu[2] + 3 * Astats$sigma[2]
     
-    ##summary(normalmixEM(A$Ratio.of.Medians..635.532., k=2, epsilon = 1e-03, fast=TRUE))
     
     normalA$Ratio.of.Medians..635.532. <- 
         ifelse(normalA$Ratio.of.Medians..635.532. > lower1 & normalA$Ratio.of.Medians..635.532. < upper1 |
@@ -98,18 +102,18 @@ preprocess_data <- function(A) {
     Anew <- normalA[,c("ID", "Ratio.of.Medians..635.532.")]
     Anew$background <- ifelse(substr(normalA$ID, nchar(normalA$ID)-1, nchar(normalA$ID)-1) == "S", 
                               "W303", "YJM")
+    
     #now we can cut the names to be able to merge probes later
     #for now we merge all the probes for the same region! 
     #change something here if you want to deal with forward and reverse probes separately
     Anew$ID <- substr(normalA$ID, 1, nchar(normalA$ID)-2)
-    
-    #strain <- substr(A$ID[i], nchar(A$ID[i])-1, nchar(A$ID[i])-1)
     
     #some magic to get the type of table we need 
     #aggregate by average values
     #Amelt <- melt(Anew)
     Acast <- dcast(data = Anew, formula = ID ~ background, 
                    fun.aggregate = mean, value.var = "Ratio.of.Medians..635.532.")
+    
     
     message("Are there many NAs now?")
     message("Calculating for W303...")
@@ -184,22 +188,32 @@ write.csv(all_borders, "All borders.csv", quote = F)
 write.csv(only_borders, "Borders.csv", quote = F)
 
 
+#Print overview of each chromosome for visial inspection
+#a small function to help manage plotting
+plot_two_backgrounds <- function(chr) {
+    plot(chr$YJM ~ chr$coord, type="l", col = "red",
+         main = paste("chr", as.character(i), sep = ""),
+         ylab = paste("Rm,", deparse(substitute(chr))), xlab = "coord",
+         ylim = c(0, 2))
+    lines(chr$W303 ~ chr$coord, type="l", col="blue") 
+}
+
+    
+#Now plotting
 for (i in 1:16) {
-    png(paste("chr", as.character(i), ".png", sep=""))
+    png(paste("chr", as.character(i), ".png", sep=""), 
+        height = 5.83, width = 8.27, units = "in", res=120)
     #subset to get data for each chromosome separately
-    chrA <- A[A$chrom==i,]; chrB <- B[B$chrom==i,]; chrC <- C[C$chrom==i,]; chrD <- D[D$chrom==i,]
+    chrA <- A[A$chrom==i,]; chrB <- B[B$chrom==i,]
+    chrC <- C[C$chrom==i,]; chrD <- D[D$chrom==i,]
+    #set parameters for margins and multipanel plotting
+    par(mar = c(3, 4, 2, 2))
+    par(mgp=c(1.5, .5, 0))
     par(mfrow=c(4,1))
-    print(plot(chrA$YJM ~ chrA$coord, type="l", col="red", 
-         main=paste("chr", as.character(i), sep=""), ylab="Ratio of medians, spore A", xlab="coord"))
-    print(lines(chrA$W303 ~ chrA$coord, type="l", col="blue"))
-    print(plot(chrB$YJM ~ chrB$coord, type="l", col="red", 
-         main=paste("chr", as.character(i), sep=""), ylab="Ratio of medians, spore B", xlab="coord"))
-    print(lines(chrB$W303 ~ chrB$coord, type="l", col="blue"))
-    print(plot(chrC$YJM ~ chrC$coord, type="l", col="red", 
-         main=paste("chr", as.character(i), sep=""), ylab="Ratio of medians, spore C", xlab="coord"))
-    print(lines(chrC$W303 ~ chrC$coord, type="l", col="blue"))
-    print(plot(chrD$YJM ~ chrD$coord, type="l", col="red", 
-         main=paste("chr", as.character(i), sep=""), ylab="Ratio of medians, spore D", xlab="coord"))
-    print(lines(chrD$W303 ~ chrD$coord, type="l", col="blue"))
+    #now plot
+    plot_two_backgrounds(chrA)
+    plot_two_backgrounds(chrB)
+    plot_two_backgrounds(chrC)
+    plot_two_backgrounds(chrD)
     dev.off()
 }
