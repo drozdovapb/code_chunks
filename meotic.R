@@ -1,9 +1,17 @@
 setwd("/media/drozdovapb/441DB6652D7ED741/Work/Current work/Lab&colleagues/DQ/") #change it to ur path
-#if(!('gdata' %in% installed.packages()) {
-#install.packages("gdata")
+
+if(!('gdata' %in% installed.packages())) {
+install.packages("gdata")}
+
+if(!('reshape2' %in% installed.packages())) {
+    install.packages("reshape2")}
+
+if(!('mixtools' %in% installed.packages())) {
+    install.packages("mixtools")}
+
 #install.packages("mixtools")
 
-##library(gdata) # I don't probably need it
+library(gdata) #for the starstWith function
 library(reshape2) #we will need it later to rearrange values
 library(mixtools) #Some statistics for bimodal distribution
 
@@ -35,6 +43,8 @@ read_data <- function(path) {
     A <- A[startsWith(A$ID, "chr"), ]
     # get rid of flagged values
     A <- A[A$Flags == 0,]
+    A <- A[A$Dia. == 45 | A$Dia. == 50 | A$Dia. == 55,]
+    
     #replace chr1-9 with chr chr01-chr09 in order to be able to sort alphabetically
     A$ID <- sub(pattern = "chr(.):", replacement = "chr0\\1:", x = A$ID)
     ##A$Name <- sub(pattern = "chr(.):", replacement = "chr0\\1:", x = A$Name)
