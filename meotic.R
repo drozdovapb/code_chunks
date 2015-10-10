@@ -68,7 +68,7 @@ preprocess_data <- function(A) {
     ##hist(normalA$Ratio.of.Medians..635.532., breaks=1000, col="blue")
     
     #I have to assume some thresholds for acceptable values -- or I fail to treat this as a normal distribution
-    normalA <- A[A$Ratio.of.Medians..635.532. > -.5 & A$Ratio.of.Medians..635.532. < 2.5,]
+    normalA <- A[A$Ratio.of.Medians..635.532. > 0 & A$Ratio.of.Medians..635.532. < 3.5,]
     plot(density(normalA$Ratio.of.Medians..635.532.))
     
     message("Are there many NAs?")
