@@ -9,29 +9,9 @@ if(!('reshape2' %in% installed.packages())) {
 if(!('mixtools' %in% installed.packages())) {
     install.packages("mixtools")}
 
-#install.packages("mixtools")
-
 library(gdata) #for the starstWith function
 library(reshape2) #we will need it later to rearrange values
 library(mixtools) #Some statistics for bimodal distribution
-
-##The proper way to read files but requires additional packages installed
-#install marray if it is not installed
-#if(!('marray' %in% installed.packages()) {
-#    source("http://bioconductor.org/biocLite.R")
-#    biocLite("marray")}
-
-#library(marray)
-
-#data <- read.GenePix(path = "From DQ")
-
-#QC
-
-#install arrayQuality if not installed
-#if (!("arrayQuality") %in% installed.packages()) {
-#    source("http://bioconductor.org/biocLite.R")
-#    biocLite("arrayQuality")}
-#library(arrayQuality)
 
 
 #Functions
@@ -75,6 +55,7 @@ preprocess_data <- function(A) {
     #I have to assume some thresholds for acceptable values -- or I fail to treat this as a normal distribution
     normalA <- A[A$Ratio.of.Medians..635.532. > 0 & A$Ratio.of.Medians..635.532. < 3.5,]
     plot(density(normalA$Ratio.of.Medians..635.532.))
+
     
     message("Are there many NAs?")
     message(sum(is.na(normalA$Ratio.of.Medians..635.532.)))
@@ -114,6 +95,14 @@ preprocess_data <- function(A) {
     Acast <- dcast(data = Anew, formula = ID ~ background, 
                    fun.aggregate = mean, value.var = "Ratio.of.Medians..635.532.")
     
+    #Empirical thresholds for means: 0.75 and 1.25
+    #mask everything else with NAs
+    Acast$W303 <- ifelse(Acast$W303 < 0.4 | Acast$W303 > 0.8, Acast$W303, NA) 
+    Acast$YJM <- ifelse(Acast$YJM < 0.4 | Acast$YJM > 0.8, Acast$YJM, NA)
+    
+    #plot distribution of values (uncomment if you would like to see the plots)
+    plot(density(Acast$W303, na.rm = T), main="W303 after filtering")
+    plot(density(Acast$YJM, na.rm = T), main="YJM789 after filtering")
     
     message("Are there many NAs now?")
     message("Calculating for W303...")
@@ -126,10 +115,6 @@ preprocess_data <- function(A) {
     
     return(Acast)
 }
-
-#chr1 <- Acast[Acast$chrom==1,]
-#plot(chr1$YJM ~ chr1$coord, type="l", col="red", main="chr1", xlab="Ratio of medians", ylab="coord")
-#lines(chr1$W303 ~ chr1$coord, type="l", col="blue")
 
 
 infer_background <- function(Acast) {
@@ -181,8 +166,8 @@ names(all_borders) <- c("chr", "coord",
                         "state C", "transition C", 
                         "state D", "transition D")
 
-#remove all NA-only rows
-only_borders <- all_borders[rowSums(is.na(all_borders)) < 4, ]
+#remove all rows where nothing happens
+only_borders <- all_borders[rowSums(is.na(all_borders[,c(4,6,8,10)])) < 4, ]
 
 write.csv(all_borders, "All borders.csv", quote = F)
 write.csv(only_borders, "Borders.csv", quote = F)
