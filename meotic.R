@@ -97,8 +97,8 @@ preprocess_data <- function(A) {
     
     #Empirical thresholds for means: 0.75 and 1.25
     #mask everything else with NAs
-    Acast$W303 <- ifelse(Acast$W303 < 0.4 | Acast$W303 > 0.8, Acast$W303, NA) 
-    Acast$YJM <- ifelse(Acast$YJM < 0.4 | Acast$YJM > 0.8, Acast$YJM, NA)
+    #Acast$W303 <- ifelse(Acast$W303 < 0.4 | Acast$W303 > 0.8, Acast$W303, NA) 
+    #Acast$YJM <- ifelse(Acast$YJM < 0.4 | Acast$YJM > 0.8, Acast$YJM, NA)
     
     #plot distribution of values (uncomment if you would like to see the plots)
     plot(density(Acast$W303, na.rm = T), main="W303 after filtering")
@@ -118,10 +118,12 @@ preprocess_data <- function(A) {
 
 
 infer_background <- function(Acast) {
-    
-    #add data about which is higher now:
-    Acast$background <- (ifelse(Acast$YJM > Acast$W303, "YJM", "W303"))
-    Acast$bckgnd <- (ifelse(Acast$YJM > Acast$W303, 0, 1))
+    #add data about which is higher now (at least by threshold):
+    threshold <- 0.4 #important! change it !!here if you like!!!
+    Acast$background <- (ifelse(Acast$YJM - Acast$W303 > threshold, "YJM", 
+                                ifelse(Acast$W303 - Acast$YJM > threshold, "W303", NA)))
+    Acast$bckgnd <- (ifelse(Acast$YJM - Acast$W303 > threshold, 0, 
+                            ifelse(Acast$W303 - Acast$YJM > threshold, 1, NA)))
     Acast$borders <- NA
     for (i in 2:nrow(Acast)) {
         if (!is.na(Acast$bckgnd[i]) & !is.na(Acast$bckgnd[i-1]) & 
@@ -155,7 +157,7 @@ Dnew <- infer_background(D)
 
 #what if we keep only differing blocks?
 all_borders <- as.data.frame(cbind
-                    (Anew$chr, as.character(Anew$coord), 
+                    (Anew$chrom, as.character(Anew$coord), 
                      Anew$background, Anew$borders, 
                      Bnew$background, Bnew$borders, 
                      Cnew$background, Cnew$borders, 
