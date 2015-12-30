@@ -127,7 +127,8 @@ infer_background <- function(Acast) {
     Acast$borders <- NA
     for (i in 2:nrow(Acast)) {
         if (!is.na(Acast$bckgnd[i]) & !is.na(Acast$bckgnd[i-1]) & 
-                Acast$bckgnd[i] != Acast$bckgnd[i-1]) {
+                Acast$bckgnd[i] != Acast$bckgnd[i-1] & 
+                Acast$chrom[i] == Acast$chrom[i-1]) {
             #Acast$borders[i-1] <- ifelse(Acast$background[i-1]=="YJM", "Yends", "Sends")
             #Acast$borders[i] <- ifelse(Acast$bckgnd[i]=="YJM", "Ystarts", "Sstarts")
             Acast$borders[i-1] <- paste(Acast$borders[i-1], "start")
@@ -204,3 +205,16 @@ for (i in 1:16) {
     plot_two_backgrounds(chrD)
     dev.off()
 }
+
+#Defining events
+
+only_borders$event <- NA
+
+for (i in 1:nrow(only_borders)) {
+    if (sum(is.na(only_borders[i, 4:10])) == 2) {
+        only_borders$event[i] <- "CO"
+    } else if (sum(is.na(only_borders[i, 4:10])) == 3) {
+        only_borders$event[i] <- "CON"
+}}
+
+write.csv(only_borders, "Borders.csv", quote = F)
