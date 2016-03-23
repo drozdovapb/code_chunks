@@ -13,11 +13,12 @@ Example pipeline:
 ####Genome assembly
 
 SPAdes-3.1.0 for IonTorrent data
+
 `strains=( 15V 1B 25b 74)`
-`for strain in "${strains[@]}"
-`spades.py --iontorrent -k 29,53,67,127 -o ~/Peterhof_strains_seq/$strain.cutadapt.up/ -s ~/Peterhof_strains_seq/Reads/Trimmed/$strain.cutadapt.fastq`
+`for strain in "${strains[@]}" spades.py --iontorrent -k 29,53,67,127 -o ~/Peterhof_strains_seq/$strain.cutadapt.up/ -s ~/Peterhof_strains_seq/Reads/Trimmed/$strain.cutadapt.fastq`
 
 SPAdes-3.6.1 for Illumina data
+
 `~/lib/SPAdes-3.6.0-Linux/bin/spades.py -o ~/Peterhof_strains_seq/Assembly/SPAdes_3.6/74.3.6/ -s ~/Peterhof_strains_seq/Reads/Raw/74D_sequence.fastq`
 
 ####Gene annotation
@@ -25,6 +26,8 @@ SPAdes-3.6.1 for Illumina data
 `maker*.ctl` contains example options for one of the files.
 
 ####Phylogeny and population structure
+
+`list_common_genes.R` was used to extract common genes to build the ORF-based tree.
 
 `mainparams` and `extraparams` contain parameters for an example STRUCTURE run.
 `clumpp.paramfile` contains CLUMPP parameters.
