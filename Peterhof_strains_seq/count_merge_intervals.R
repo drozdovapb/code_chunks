@@ -1,10 +1,15 @@
-setwd("/media/drozdovapb/big/Peterhof_strains_seq/Coverage/2015-11-05-combine/")
+#setwd("/media/drozdovapb/big/Peterhof_strains_seq/Coverage/2015-11-05-combine/")
+
+library(intervals)
 
 for (mrcnvr_name in c("./15V.copynumber.bed", 
                      "./25b.copynumber.bed", 
                      "./1B.copynumber.bed", 
                      "./74.copynumber.bed", 
-                     "./6P.copynumber.bed")) {
+                     "./6P.copynumber.bed",
+                     "./222.copynumber.bed")) {
+
+
 
 strain.name <- substr(mrcnvr_name, 3, 5)
 if (substr(strain.name, 3, 3) == '.') {strain.name <- substr(strain.name, 1, 2)}
@@ -74,4 +79,3 @@ for (chr in levels(deleted_mrcnvr$X.CHROM)) {
 }
 
 }
-
