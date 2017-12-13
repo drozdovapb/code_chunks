@@ -1,75 +1,143 @@
-#install and load necessary packages
-{
-    if (!("ggplot2" %in% installed.packages())) {
-        install.packages(gglot2) }
-    if (!("coin" %in% installed.packages())) {
-        install.packages(gglot2) }
-    #load necessary packages
-    library(ggplot2)
-    library(coin)
+library(openxlsx)
+
+#read data
+setwd("D:/Rabochee/G. faciatus/??????? ?? ???? ??????????/???.??????/")
+dataB <- read.xlsx("for R.xlsx", sheet=1)
+#????????????? ???????????? ??. ??????? (?? ???????????)
+dataB$Factor <- factor(dataB$Factor, levels=unique(dataB$Factor))
+#look at the data
+#str(data)
+# View(data) 
+
+#statistics here
+
+library("PMCMR")
+
+dunn <- function(parameter, data) {
+    gi.met1.raw <- data[,c(parameter,"Factor")] #read.xlsx("??????? ???????? ???????.xlsx",sheet=3,rows=c(1,11:17),cols=1:7)
+    gi.met1.raw
+    colnames(gi.met1.raw) <- c("values", "groups")
+    gi.met1.raw$groups <- relevel(gi.met1.raw$group, "5-6")
+    kruskal.test(x=gi.met1.raw[,1], g=gi.met1.raw[,2])
+    result <- dunn.test.control(gi.met1.raw[,1], gi.met1.raw[,2], p.adjust.method="hommel")
+    print(result)
+    return(result)
 }
-#The main function
-plot_signif <- function(data, variable, contrast_factor, faceting_factor,
-                        plot_type = "boxplot",
-                        method = "mann_whitney", p.adjust_method = "holm"){
-    #draw the initial plot
-    p <- ggplot(data = data, aes_string(y = variable, x = contrast_factor)) +
-        theme_bw() +
-        stat_boxplot(geom ='errorbar', width = 0.25, coef=1000) + 
-        geom_boxplot(outlier.size = 0) + facet_wrap(faceting_factor) 
-    signif = NULL
-    #get max and min values for nice plotting
-    range_values <- c(min(data[,variable]), max(data[,variable]))
-    p <- p + ylim(1.1 * range_values[1], 1.3 * range_values[2])
-    
-    
-    #run the test (only Mann-Whitney implemented so far)
-    #warn if the test is misspelled or not implemented
-    if (!(method %in% c("mann_whitney"))) {
-        message(paste0("The ", method, " method not been implemented yet. Please contact me if you need it."))}
-    
-    for (level in levels(data[,faceting_factor])) {
-        cond_data <- data[match.fun("==")(data[,faceting_factor], level),]
-        if (method == "mann_whitney") {
-            test <- wilcox_test(formula = cond_data[,variable] ~ cond_data[,contrast_factor]) }
-        signif <- c(signif, pvalue(test))
+#Shira: no 5-6 => use 7 as the reference factor level
+dunnS <- function(parameter, data) {
+    gi.met1.raw <- data[,c(parameter,"Factor")] #read.xlsx("??????? ???????? ???????.xlsx",sheet=3,rows=c(1,11:17),cols=1:7)
+    gi.met1.raw
+    colnames(gi.met1.raw) <- c("values", "groups")
+    gi.met1.raw$groups <- relevel(gi.met1.raw$group, "7")
+    kruskal.test(x=gi.met1.raw[,1], g=gi.met1.raw[,2])
+    result <- dunn.test.control(gi.met1.raw[,1], gi.met1.raw[,2], p.adjust.method="hommel")
+    print(result)
+    return(result)
+}
+
+
+result.CATB <- dunn("CAT", dataB)
+
+#decide what is significantly different
+find.signif <- function(result) {
+    signif <- ifelse(result$p.value < 0.05, "*", "")
+    signif <- c(signif[1:2], "", signif[3:length(signif)])
+}
+
+signifB <- find.signif(result.CATB)
+
+#and how to color them
+choose.color <- function(result, data, parameter) {
+    bp <- boxplot(data[,parameter] ~ data$Factor, plot=F)
+    which.control <- as.numeric(which(levels(droplevels(
+        data$Factor[!is.na(data[,parameter])])) %in% c('5-6', '7')))
+    median <- bp$stat[3,]
+    median <- median[!is.na(median)]
+    pval <- result$p.value
+    #color <- ifelse(result$p.value > 0.05, "white", 
+    #            ifelse(median > median[3], "lightgoldenrod1", "paleturquoise2"))
+    if (which.control == 1) pval <- c(1, pval)
+    if (which.control > 1) {
+        pval <- c(pval[1:which.control-1], 1, 
+                  pval[which.control:length(pval)])}
+    color <- rep("white", length(median))
+    for (i in (1:length(median))) {
+        if (pval[i] < 0.05) {
+            if(median[i] > median[which.control]) color[i] <- "lightgoldenrod1"
+            else color[i] <- "paleturquoise2" }
     }
-    #correct the p values (Holm correction is used by default)
-    signif_corr <- p.adjust(signif, method = p.adjust_method)
-    #and now decide which of these are significant
-    is_signif <- ifelse(signif_corr < 0.001, "***",
-                        ifelse(signif_corr < 0.01, "**",
-                               ifelse(signif_corr < 0.05, "*", "NS")))
-    is_signif_df <- cbind(levels(data[,faceting_factor]), is_signif)
-    #add lines and asterisks where appropriate
-    for (facet in 1:nrow(is_signif_df)) {
-        if (is_signif_df[facet, 2] == "NS") next #skip if not significant
-        cond_data <- data[match.fun("==")(data[,faceting_factor], is_signif_df[facet,1]),]
-        p <- p + geom_segment(data = cond_data,
-                              aes(x = 1, xend=2,
-                                  y = range_values[2]*1.1, yend = range_values[2]*1.1),
-                              inherit.aes=F)
-        p <- p + geom_text(data = cond_data, aes(label = is_signif_df[facet, 2],
-                                                 x = 1.5, y = range_values[2]*1.25, size = 6),
-                           show.legend = FALSE)
-    }
-    #finally print the plot (and return this object for further use)
-    print(p)
-    return(p)
+    color[which.control] <- "palegreen"
+    
+    #    color <- ifelse(result$p.value < 0.05, 
+    #                    ifelse(median > median[3], "lightgoldenrod1", "paleturquoise2") 
+    #                    )
+    #if ('5-6' %in% levels(data$Factor)) { 
+    #    which.control <- as.numeric(which(levels(droplevels(
+    #      data$Factor[!is.na(data[,parameter])])) %in% c('5-6', '7'))) #} 
+    #else (which.control <- which(levels(data$Factor) == '7'))
+    #    if (which.control == 1) color <- c("palegreen", color)
+    #    if (which.control > 1) {
+    #      color <- c(color[1:which.control-1], "palegreen", 
+    #                 color[which.control:length(color)])}
+    return(color)
 }
-#Generate sample data
-{fact <- c(rep("cont", 20), rep("exp", 20))
-    test_data1 <- data.frame(var=c(rnorm(20)*100, (rnorm(20)+3)*100),
-                             contrast_fact=fact)
-    test_data2 <- data.frame(var=c(rpois(20, lambda = 2)*100, (rpois(20, lambda = 1.5))*100),
-                             contrast_fact=fact)
-    test_data3 <- data.frame(var=c(runif(20)*100, (runif(20)+3)*100),
-                             contrast_fact=fact)
-    test_data <- rbind(test_data1, test_data2, test_data3)
-    #test_data$facet_fact <- as.factor(c(rep("cond1", 40), rep("cond2", 40), rep("cond3", 40)))
-    #if no faceting
-    test_data$facet_fact <- as.factor(rep("c1", 120))
+
+
+colorB <- choose.color(result.CATB, dataB, "CAT")
+colorL <- choose.color(result.CATL, dataL, "CAT")
+colorF <- choose.color(result.CATF, dataF, "CAT")
+colorS <- choose.color(result.CATS, dataS, "CAT")
+colorI <- choose.color(result.CATI, dataI, "CAT")
+
+#install ggplot2 if you don't have it
+if (!"ggplot2" %in% installed.packages()) install.packages("ggplot2")
+#load ggplot2
+library(ggplot2)
+#install.packages("extrafont")
+#library(extrafont)
+#font_import()
+#cond_data <- data[match.fun("==")(data[,"Factor"], level),]
+
+myplot <- function(population, parameter, rus_for_y,
+                   data, color, signif, mintemp=1, max_y = 2000) {
+    maxtemp <- length(signif)+mintemp-1
+    bp <- boxplot(data[,parameter] ~ data$Factor, plot=F, range=100500)
+    upper.whisker <- bp$stats[5,]
+    upper.whisker <- upper.whisker[!is.na(upper.whisker)]
+    place.for.asterisk <- upper.whisker + max_y * 0.05
+    g <- ggplot(data, aes(y=data[,parameter], x=Factor)) +
+        stat_boxplot(geom='errorbar', width=0.25, coef=100500) +
+        geom_boxplot(outlier.size = 0, fill=color) +
+        xlab("???????????, ?C") +
+        ylab(rus_for_y) + ylim(1, max_y) +
+        geom_text(data=data.frame(), aes(x=mintemp:maxtemp, 
+                                         #y=max(data[,parameter], na.rm = T)*1.05,
+                                         y=place.for.asterisk,
+                                         size=12), label=signif, show.legend=F) +
+        geom_text(aes(x=8.5, y=max_y * 0.95), 
+                  family="serif", label=population) +
+        theme_classic() +
+        theme(panel.grid.major.y=element_line(color="darkgrey", size=0.4, linetype = 2),
+              text = element_text(family="serif"),
+              axis.text.x = element_text(size=7.5, colour = "black"), 
+              axis.text.y = element_text(size=9, colour = "black"),
+              axis.title = element_text(size=10)) 
+    print(g)
+    #ylim(0, 10) 
+    #+ ylab("slkdjfdslkfjsldfj") #custom y label 
+    
+    return(g)
 }
-#run with sample data and all default values
-plot_signif(test_data, "var", "contrast_fact", "facet_fact")
-#plot_signif(test_data, "var", "contrast_fact", "facet_fact", method = "dlkfj")
+
+pB <- myplot("??????", "CAT", "?????????? ????????, ????/?? ?????", dataB, colorB, signifB)
+
+blank <- ggplot() + theme_minimal()
+
+#plist <- list(pB, pL, pF, pS, pI)
+library(gridExtra)
+#install.packages('gridExtra')
+
+#And finally, save pictures
+#png("CAT_Gme.png", width = 8.5, height = 21, units = "cm", res=300)
+#grid.arrange(pL, pB, pF,  ncol = 1)
+#dev.off()
