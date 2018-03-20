@@ -1,29 +1,31 @@
 getTaxonomy <- function(thisassembly) {
-    setwd("/media/drozdovapb/big/Research/Projects/DE/annotation/")
+    #setwd("/media/drozdovapb/big/Research/Projects/DE/annotation/") #change path
+    #get taxids from diamond results (particular column # depends on diamond options)
     ##cut -f 13  GlaBCd6T24T_deep_FR.diamond.tsv >GlaBCd6T24T_deep_FR.taxid
     ## cut -f 13  GlaBCdTP1_cor.diamond.tsv >GlaBCdTP1_cor.taxid
     ##cut -f 13  EcyBCdTP1_cor.diamond.tsv >EcyBCdTP1_cor.taxid
     ids <- readLines(thisassembly)
     #remove multiple numbers in one entry, as they cannot be processed by NCBI
     sids <- sapply(strsplit(ids, split=";"), '[', 1)
+    #summarize + sort (mostly for convenience)
     tids <- sort(table(sids))
     write.csv(tids, paste0(thisassembly, "tids.csv"))} 
 
 matchTaxonomy <- function(tax_report, thisassembly) {
+    #linker to the previous function:
     #https://www.ncbi.nlm.nih.gov/Taxonomy/TaxIdentifier/tax_identifier.cgi
     #got full taxonomy report
     #taxonomy report:
     trec <- read.delim(tax_report)
     tl <- strsplit(as.character(trec$lineage), " ")
+    #choose kingdom ids
     kingdom <- lapply(tl, function(x) x[length(x)-3])
+    #make vector from list
     vkingdom <- unlist(lapply(kingdom, "[", 1))
-    #qq <- cbind(as.numeric(vkingdom), as.numeric(tids))
+    #write and return
     tids <- read.csv(paste0(thisassembly, "tids.csv"))
     qq <- data.frame(kingdom=as.numeric(vkingdom), num=as.numeric(tids$Freq), taxon=tids$sids)
-    #summ <- aggregate(num~kingdom, qq, sum)
-    #summ[order(summ$num),]
     return(qq)}
-
 
 
 volcanoplot <- function(merged, thiscolor) {
@@ -51,9 +53,10 @@ deselect.contaminants <- function(tbl, qq) {
 
 
 perform.de <- function(dir, thispecies, theseconditions) {
+    #this is the main function for differential expression
     #Setup
     setwd(dir)
-    #read samples table
+    #read samples table (metadata)
     samples <- read.csv("./samples.csv")
     #create a vector of paths to files
     files <- file.path(dir, "gc", samples$salmon.folder, "quant.sf")
@@ -61,50 +64,38 @@ perform.de <- function(dir, thispecies, theseconditions) {
     #check whether everything is fine and all the files exist
     all(file.exists(files))
     
-    
-    #now, get colors right
+    #now, get colors right for plotting
     palette <- c("Blues", "Greens", "Oranges")
     colors <- c("blue4", "green4", "orange4")
     species <- c("Ecy", "Eve", "Gla")
-    
     thispalette <- palette[which(species ==  thispecies)]
     thiscolor <- colors[which(species == thispecies)]
     
     ###Transcripts need to be associated with gene IDs for gene-level summarization.
     ###should I be fine with transcript-level summarization?
     
-    #txi <- tximport(files, type = "salmon", txOut=TRUE)
-    #it would never work at my laptop
-    
+    #choose which samples to compare
     tocompare <- which(samples$species==thispecies & samples$condition %in% theseconditions)
     txi <- tximport(files[tocompare], type = "salmon", txOut=TRUE)
-    #should be read in several minutes...
+    #one of the longest stages, several minutes
     
-    #now let us construct a DESeq2 object
-    library(DESeq2)
-    
+    #construct a DESeq2 object
+    library(DESeq2) #just in case
     sampleTable <- data.frame(condition=samples$condition[tocompare])
-    #rownames(sampleTable) <- colnames(txi$counts) #it is NA
     rownames(sampleTable) <- samples$sample[tocompare]
     colnames(txi$counts) <- samples$sample[tocompare]
-    
     dds <- DESeqDataSetFromTximport(txi, sampleTable, ~condition)
-    
+    #red rid of non-expressed contigs (<10 reads)
     keep <- rowSums(counts(dds)) >= 10
     dds <- dds[keep,]
-    #80 to 20 Mb It's great but how would I now match back? It would be quite complicated
     
     #differential expression! 
     dds <- DESeq(dds)
     res <- results(dds)
     res$log10padj <- -log10(res$padj)
     
-    ##mcols(res)$description
-    
-    #Transformed data for some playing around
+    #Transformed data for some playing around (PCA)
     vsd <- vst(dds, blind=FALSE)
-    plotPCA(vsd, intgroup=c("condition"))
-    
     svg(filename = paste0(thispecies, theseconditions[2],"_PCA",".svg"), 
         width=3.5, height=3.5)
     pl <- plotPCA(vsd, intgroup=c("condition")) + 
@@ -120,55 +111,46 @@ perform.de <- function(dir, thispecies, theseconditions) {
     sampleDistMatrix <- as.matrix(sampleDists)
     rownames(sampleDistMatrix) <- colnames(vsd)
     colnames(sampleDistMatrix) <- NULL
-    
     colors <- colorRampPalette( rev(brewer.pal(9, thispalette)))(255)
-    
     svg(filename = paste0(thispecies,theseconditions[2], "_clust",".svg"), 
         width=6, height=4)
-    pheatmap(sampleDistMatrix,
-             clustering_distance_rows=sampleDists,
-             clustering_distance_cols=sampleDists,
-             col=colors, fontsize = 16)
-    #ok, it looks fine
+        pheatmap(sampleDistMatrix,
+                 clustering_distance_rows=sampleDists,
+                 clustering_distance_cols=sampleDists,
+                 col=colors, fontsize = 16)
     dev.off()
     
     resOrdered <- res[order(res$log2FoldChange),]
     
+    #write full results
     write.csv(resOrdered, paste0(thispecies,theseconditions[2],"_ordered.csv"))
-    
     
     ##Merge with 'annotation'
     diamond <- read.delim(
         paste0("/media/drozdovapb/big/Research/Projects/DE/annotation/", thisassembly, ".diamond.tsv"), 
         head=F, stringsAsFactors = F)
-    ##str(diamond)
     names(diamond)[1] <- "gene"
     diamond$V13 <- sapply(strsplit(diamond$V13, split=";"), '[', 1)
-    #names(res)[1] <- "gene"
     resOrdered$gene <- row.names(resOrdered)
-    
     merged <- merge(y = diamond[,c(1,13,14)], x=as.data.frame(resOrdered), all.x=T, all.y=FALSE , by="gene")
     mergedOrdered <- merged[order(merged$log2FoldChange),]
     
+    #write full annotated data
     write.table(mergedOrdered[,c("gene","baseMean","log2FoldChange", "padj", "log10padj", "V13", "V14")], paste0(thispecies,theseconditions[2],"_annot.csv"))
     
+    #select and write DE expressed genes only
     de <- mergedOrdered[abs(mergedOrdered$log2FoldChange) > 3 & mergedOrdered$padj < 0.0001,]
     de <- de[complete.cases(de),]
     write.table(de[,c("gene","baseMean","log2FoldChange", "padj", "log10padj", "V14")], paste0(thispecies,theseconditions[2],"_annot_de.csv"))
     
+    #volcanoplot
     p1 <- volcanoplot(merged, thiscolor)
     ggsave(paste0(thispecies,theseconditions[2],".png"), 
            p1, device = "png", width = 3, height = 3)
-    #}
-    
-    ####qq <- getTaxonomy(thisassembly)
-    ####qq should be counted outside of this function.
-    
+
     setwd(dir)
     
-    #diamond <- read.delim("../../EveBCd6T24T_deep_FR.diamond.tsv", head=F, stringsAsFactors = F)
-    
-    #33208
+    #now select Metazoa (#33208 in the NCBI classification)
     merged.metazoa <- select.metazoa(merged, qq)
     merged.metazoa <- merged.metazoa[order(merged.metazoa$log2FoldChange),]
     write.csv(merged.metazoa[,c("gene","baseMean","log2FoldChange", "padj", "log10padj", "V14")], paste0(thispecies,theseconditions[2],"_metazoa.csv"))
@@ -180,11 +162,10 @@ perform.de <- function(dir, thispecies, theseconditions) {
     
     p2 <- volcanoplot(merged.metazoa, thiscolor) + 
         ggtitle(paste0(thispecies, theseconditions[2], "_vs_", theseconditions[1], "_Metazoa"))
-    #p
     ggsave(paste0(thispecies,theseconditions[2],"_metazoa.png"), 
            p2, device = "png", width = 3, height = 3)
     
-    
+    #Or deselect contaminants
     merged.decont <- deselect.contaminants(merged, qq)
     merged.decont <- merged.decont[order(merged.decont$log2FoldChange),]
     write.csv(merged.decont[,c("gene","baseMean","log2FoldChange", "padj", "log10padj", "V14")], paste0(thispecies,theseconditions[2],"_decont.csv"))
@@ -196,7 +177,6 @@ perform.de <- function(dir, thispecies, theseconditions) {
     
     p3 <- volcanoplot(merged.decont, thiscolor) + 
         ggtitle(paste0(thispecies, theseconditions[2], "_vs_", theseconditions[1], "-contam-n"))
-    #p
     ggsave(paste0(thispecies,theseconditions[2],"_decont.png"), 
            p3, device = "png", width = 3, height = 3)
 }
