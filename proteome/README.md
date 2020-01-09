@@ -11,7 +11,6 @@ The `scripts/` folder contains:
 * `manual_analysis_figs.R`: handy pieces of code to reproduce plots in the main text. 
 
 The `data` folder contains: 
-* 
-* 
-* 
-* GO terms obtained with the overrepresentation analysis.
+* Table S1: GO terms obtained with the overrepresentation analysis.
+* Table S2: Protein group intensities for each sample (with annotation).
+* Table S3: Lists of differentially abundant proteins. 
