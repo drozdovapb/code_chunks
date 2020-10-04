@@ -1,6 +1,6 @@
 
 
-## This folder provides details of the data analysis pipeline for Drozdova *et al.* manuscript *The levels of putative carotenoid-binding proteins as the mechanism of color formation in two species of endemic Lake Baikal amphipods* (submitted to PeerJ)
+## This folder provides details of the data analysis pipeline for Drozdova *et al.* manuscript *The levels of putative carotenoid-binding proteins as the mechanism of color formation in two species of endemic Lake Baikal amphipods* (https://peerj.com/articles/9387/)
 
 ### Data analysis overview
 
