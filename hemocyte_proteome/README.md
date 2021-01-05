@@ -15,3 +15,6 @@ Should contain:
 3. R code to explore the general things...
 
 4. Huge R code to build the virtual 2D phoresis.
+
+
+TODO: add diamond!
