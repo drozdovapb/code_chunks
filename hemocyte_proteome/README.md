@@ -12,9 +12,13 @@ Should contain:
 
 3. Put reports here (?)
 
-3. R code to explore the general things...
+3. R code to explore the general things: `Fig3B_protein_MW_PI_summary_manual.Rmd`; compiled (`Fig3B_protein_MW_PI_summary_manual.pdf`).
 
 4. Huge R code to build the virtual 2D phoresis.
 
 
-TODO: add diamond!
+TODOs: 
+* add diamond!
+* think whether we need GO terms
+* add panther to the main table
+* thinks if we want PS reports in the supplement
