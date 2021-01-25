@@ -83,12 +83,87 @@ sumsn$panther.go <- sapply(sumsn$panther.family,
 
 write.csv(sums, "../data/sums_with_panther_families_names.csv")
 
-f <- aggregate(sums$fabundance, by=list(sums$panther.family, sums$panther.fam.name), FUN=sum)
-head(f[order(f$x, decreasing = T), ], 15)
+
+sums <- read.csv("../data/sums_with_panther_families.csv")
+
+sumcols <- c(grep("sum", names(sums)), grep("abundance", names(sums)), 
+             grep("panther.family", names(sums)))
+sumsn <- sums[, sumcols]
+
+f <- aggregate( . ~ panther.family, sumsn, FUN=sum)
+head(f[order(f$fabundance, decreasing = T), ], 15)
 
 
 m <- aggregate(sums$mabundance, by=list(sums$panther.family, sums$panther.fam.name), FUN=sum)
 head(m[order(m$x, decreasing = T), ], 15)
+
+# f <- aggregate(sums$fabundance, by=list(sums$panther.family, sums$panther.fam.name), FUN=sum)
+# head(f[order(f$x, decreasing = T), ], 15)
+# 
+# m <- aggregate(sums$mabundance, by=list(sums$panther.family, sums$panther.fam.name), FUN=sum)
+# head(m[order(m$x, decreasing = T), ], 15)
+
+
+## top 20 female proteins for plotting
+f$percentfabundance <- f$fabundance / sum(f$fabundance)* 100
+f$percentFK_E <- f$sum_FK_E / sum(f$sum_FK_E) * 100
+f$percentFK_F <- f$sum_FK_F / sum(f$sum_FK_F) * 100
+f$percentFK_G <- f$sum_FK_G / sum(f$sum_FK_G) * 100
+f$percentFK_H <- f$sum_FK_H / sum(f$sum_FK_H) * 100
+
+toplotf <- (head(f[order(f$fabundance, decreasing = T), ], 11)) ##approx. 71%, each over 1%
+toplotf$family <- factor(toplotf$panther.family, levels = rev(toplotf$panther.family))
+
+
+## Part of Fig. 3 actually
+fplot <- 
+  ggplot(toplotf, aes(y = percentfabundance, x = family)) + 
+  stat_summary_bin(fun.y = "median", geom = "bar", alpha=.8, col = "transparent", fill = "#FF00FF") + 
+  geom_point(aes(y = percentFK_E), cex = 1, alpha=.5, color = "#990099", position = position_jitter(width = 0, h = 0)) +
+  geom_point(aes(y = percentFK_F), cex = 1, alpha=.5, color = "#990099", position = position_jitter(width = 0, h = 0)) + 
+  geom_point(aes(y = percentFK_G), cex = 1, alpha=.5, color = "#990099", position = position_jitter(width = 0, h = 0)) + 
+  geom_point(aes(y = percentFK_H), cex = 1, alpha=.5, color = "#990099", position = position_jitter(width = 0, h = 0)) + 
+  theme_bw(base_size = 16) + coord_flip() + 
+  xlab("Protein family") + ylab("% of the total intensity in the sample")
+
+
+
+##and top male proteins for plotting
+f$percentmabundance <- f$mabundance / sum(f$mabundance)* 100
+f$percentMK_N <- f$sum_MK_N / sum(f$sum_MK_N) * 100
+f$percentMK_O <- f$sum_MK_O / sum(f$sum_MK_O) * 100
+f$percentMK_P <- f$sum_MK_P / sum(f$sum_MK_P) * 100
+
+toplotm <- (head(f[order(f$mabundance, decreasing = T), ], 14)) ##approx. 71%, each over 1%
+toplotm$family <- factor(toplotm$Group.1, levels = rev(toplotm$Group.1))
+
+## Part of Fig. 3 actually
+mplot <- 
+  ggplot(toplotm, aes(y = percentmabundance, x = family)) + 
+  stat_summary_bin(fun.y = "median", geom = "bar", alpha=.8, col = "transparent", fill = "#0072b2") + 
+  geom_point(aes(y = percentMK_O), cex = 1, alpha=.5, color = "#005555", position = position_jitter(width = 0, h = 0)) +
+  geom_point(aes(y = percentMK_P), cex = 1, alpha=.5, color = "#005555", position = position_jitter(width = 0, h = 0)) + 
+  geom_point(aes(y = percentMK_N), cex = 1, alpha=.5, color = "#005555", position = position_jitter(width = 0, h = 0)) + 
+  theme_bw(base_size = 16) + coord_flip() + 
+  xlab("Protein family") + ylab("% of the total intensity in the sample")
+
+pp <- grid.arrange(mplot, fplot, heights = c(12/22, 10/22))
+ggsave(plot = pp, filename = "../figures/fm_top.svg", device = "svg", 
+       width = 20, height = 20, units = "cm")
+
+## some of groups do not have proper names. Let's use the name of the largest subfamily
+f <- aggregate(sums$fabundance, by=list(sums$panther.subfamily, sums$panther.fam.name), FUN=sum)
+head(f[order(f$x, decreasing = T), ], 20)
+
+
+##and the same thing for males
+m <- aggregate(sums$mabundance, by=list(sums$panther.family, sums$panther.fam.name), FUN=sum)
+View(head(m[order(m$x, decreasing = T), ], 20))
+
+m <- aggregate(sums$fabundance, by=list(sums$panther.subfamily, sums$panther.fam.name), FUN=sum)
+View(head(m[order(f$x, decreasing = T), ], 30))
+
+
 
 
 ######
