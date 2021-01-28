@@ -33,7 +33,7 @@ found <- list(Reduce(union, listNames))[[1]]
 #allfound <- sapply(found[[1]], FUN = function(x) {strsplit(x, "|", fixed = T)[[1]][1]})
 writeLines(found, "all_found_proteins.txt")
 
-diamond <- read.delim("../EveGHHK01_and_contam.diamond.tsv", header = F, stringsAsFactors = F)
+diamond <- read.delim("EveGHHK01_and_contam.diamond.tsv", header = F, stringsAsFactors = F)
 
 
 found.proteins <- data.frame(Accession = found, Annotation = NA)
@@ -50,7 +50,8 @@ allsamples <- merge(samples5, samples6, by = "Main Accession", all = TRUE)
 ## Transmembrane
 ## TODO: put here back all the commands to run TMHMM etc
 
-tm_vect <- readLines("proteins_with_TMHs_ids.txt")
+tm_vect <- readLines("Fig2A_proteins_with_TMHs_ids.txt")
+
 sample51$shortnames <- gsub("(+)", "", gsub(".1|:", "1", gsub("-", "", gsub("(-)", "", sample51$`Main Accession`,
                                               fixed = T), fixed = T), fixed = T), fixed = T)
 sample52$shortnames <- gsub("(+)", "", gsub(".1|:", "1", gsub("-", "", gsub("(-)", "", sample52$`Main Accession`,
@@ -122,3 +123,4 @@ TMs$Present.in.no.SDS <- sapply(TMs$`Protein ID`, function(x) sum(grepl(x, sampl
 
 
 write.xlsx(found.proteins, "all_found_proteins_wmod.xlsx")
+
