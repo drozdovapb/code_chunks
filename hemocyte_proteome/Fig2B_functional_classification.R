@@ -20,6 +20,21 @@ library(openxlsx)
 # quant$Percent.Quantity <- quant$Total.Quantity / sum(quant$Total.Quantity) * 100
 # quant.with.panther <- merge(quant, dat, by = "Accession_underscore", all = TRUE)
 
+## merging code
+# library(openxlsx)
+# options(stringsAsFactors = F)
+# 
+# wpanther <- read.delim("Table_S1a_all_found_proteins_with_panther.tsv", head = F)
+# withmwpi <- read.xlsx("Table_S1_Abundance_MW_pI.xlsx")
+# 
+# names(wpanther) <- c("Accession_underscore", "Panter_class", "Panther_GO")
+# wall <- merge(wpanther, withmwpi, all = T)
+# 
+# wall <- wall[order(wall$`%.Quantity`, decreasing = T), ]
+# 
+# write.xlsx(wall, file = "Table_S1_Abundance_MW_pI_upd.xlsx")
+
+
 quant.with.panther <- read.xlsx("Table_S1_Abundance_MW_pI_upd.xlsx")
 ## at least three proteins...
 atleast5 <- names(table(quant.with.panther$Panther.Family)[table(quant.with.panther$Panther.Family) > 5])
