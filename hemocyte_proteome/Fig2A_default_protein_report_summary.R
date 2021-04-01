@@ -51,7 +51,10 @@ allsamples <- merge(samples5, samples6, by = "Main Accession", all = TRUE)
 ## TODO: put here back all the commands to run TMHMM etc
 
 tm_vect <- readLines("Fig2A_proteins_with_TMHs_ids.txt")
+<<<<<<< HEAD
+=======
 
+>>>>>>> 1e76151c0a7fd333de247b91be631c87354de277
 sample51$shortnames <- gsub("(+)", "", gsub(".1|:", "1", gsub("-", "", gsub("(-)", "", sample51$`Main Accession`,
                                               fixed = T), fixed = T), fixed = T), fixed = T)
 sample52$shortnames <- gsub("(+)", "", gsub(".1|:", "1", gsub("-", "", gsub("(-)", "", sample52$`Main Accession`,

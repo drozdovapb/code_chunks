@@ -19,6 +19,9 @@ library(openxlsx)
 # quant <- read.xlsx("Table_S1_Abundance_MW_pI.xlsx")
 # quant$Percent.Quantity <- quant$Total.Quantity / sum(quant$Total.Quantity) * 100
 # quant.with.panther <- merge(quant, dat, by = "Accession_underscore", all = TRUE)
+<<<<<<< HEAD
+
+=======
 
 ## merging code
 # library(openxlsx)
@@ -35,6 +38,7 @@ library(openxlsx)
 # write.xlsx(wall, file = "Table_S1_Abundance_MW_pI_upd.xlsx")
 
 
+>>>>>>> 1e76151c0a7fd333de247b91be631c87354de277
 quant.with.panther <- read.xlsx("Table_S1_Abundance_MW_pI_upd.xlsx")
 ## at least three proteins...
 atleast5 <- names(table(quant.with.panther$Panther.Family)[table(quant.with.panther$Panther.Family) > 5])
