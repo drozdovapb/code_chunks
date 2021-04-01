@@ -157,12 +157,12 @@ ggplot(carot1, aes(x=Feed, y=`Carotenoids,.ppm_corrected`, col=Feed)) +
 #ggsave("carot1.png", width=6, height=4)  
 
 pweight1 <- 
-ggplot(carot1, aes(x=Feed, y=Sample.weight, col=Feed)) +
+ggplot(carot1, aes(x=Feed, y=Sample.weight*1000, col=Feed)) +
   geom_boxplot() + geom_jitter(width = .05) + expand_limits(y= c(0,.06)) +
   theme_bw(base_size = 14) + 
   scale_color_manual(values = c("chartreuse4", "orange")) +
   #geom_signif(comparisons = list(c("BFM", "TC")), map_signif_level=TRUE, test = "wilcox.test") +  NS
-  ylab("Sample weight, g")
+  ylab("Sample weight, mg")
 
 #and 2nd exp
 carot2 <- read.xlsx("data/carotenoids_weight_2nd_feeding_experiment.xlsx")
@@ -177,17 +177,17 @@ ggplot(carot2, aes(x=Feed, y=`Carotenoids,.ppm_corrected`, col=Feed)) +
 #ggsave("carot2.png", width=6, height=4)  
 
 pweight2 <- 
-ggplot(carot2, aes(x=Feed, y=Sample.weight, col=Feed)) +
-  geom_boxplot() + geom_jitter(width = .05) + expand_limits(y= c(0,.06)) +
+ggplot(carot2, aes(x=Feed, y=Sample.weight*1000, col=Feed)) +
+  geom_boxplot() + geom_jitter(width = .05) + expand_limits(y= c(0,60)) +
   theme_bw(base_size = 14) + 
   scale_color_manual(values = c("chartreuse4", "grey", "orange")) +
   #geom_signif(comparisons = list(c("BFM", "TC"), c("BFM", "DG"), c("DG", "TC")), 
   #            map_signif_level=TRUE, test = "wilcox.test") + ### 3 times NS
-  ylab("Sample weight, g")
+  ylab("Sample weight, mg")
 
 
 ggarrange(pweight1 + theme(legend.position = 'none'), pweight2, widths = c(0.66, 1))
-ggsave("FigS3_weight.png")
+ggsave("FigS4_weight.png", width = 8, height = 4)
 
 ## metabolites
 metab1 <- read.xlsx("data/lactate_glycogen_glucose_1st_feeding_exp.xlsx")
