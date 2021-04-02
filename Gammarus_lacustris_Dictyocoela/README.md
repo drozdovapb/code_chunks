@@ -14,7 +14,7 @@ This folder contains code for the analysis of microsporidian parasites in *Gamma
 
 For one sample: 
 
-`bbduk.sh -Xmx16g -in1=sample_R1.fastq.gz -in2=sample_R2.fastq.gz ref=genbank_sequences.fa k=63 hdist=0 outm=sample.microsporidia.fq stats=sample.stats.txt; done`
+`bbduk.sh -Xmx16g -in1=sample_R1.fastq.gz -in2=sample_R2.fastq.gz ref=genbank_sequences.fa k=63 hdist=0 outm=sample.microsporidia.fq stats=sample.stats.txt`
 
 For a folder: 
 `for sample in `ls $folder_with_reads/*1.fastq.gz`; do base=$(basename $sample "_1.fastq.gz"); folder=$(dirname $sample); bbduk.sh -Xmx16g -in1=$folder/${base}_1.fastq.gz -in2=$folder/${base}_2.fastq.gz ref=../genbank_sequences.fa k=63 hdist=0 outm=$base.microsporidia.fq stats=$base.stats.txt; done`
