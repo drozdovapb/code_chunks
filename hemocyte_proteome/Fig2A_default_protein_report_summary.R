@@ -24,7 +24,10 @@ plot(c(nrow(sample51), nrow(sample52), nrow(sample53), nrow(sample61), nrow(samp
 
 listNames <- list(one = sample51$`Main Accession`, two = sample52$`Main Accession`, three = sample53$`Main Accession`,
                   four = sample61$`Main Accession`, five = sample62$`Main Accession`, six = sample63$`Main Accession`)
-upset(fromList(listNames))
+upset(fromList(listNames), 
+      intersections = list(list("one", "two", "three", "four", "five", "six"), 
+                         list("one", "two", "three"), list("four", "five", "six"),
+      list("one"), list("two"), list("three"), list("four"), list("five"), list("six")), keep.order = T)
 
 ## these are the proteins found in each sample. The core proteome, if you wish.
 #found <- list(Reduce(intersect, listNames))[[1]]
@@ -33,8 +36,106 @@ found <- list(Reduce(union, listNames))[[1]]
 #allfound <- sapply(found[[1]], FUN = function(x) {strsplit(x, "|", fixed = T)[[1]][1]})
 writeLines(found, "all_found_proteins.txt")
 
-diamond <- read.delim("EveGHHK01_and_contam.diamond.tsv", header = F, stringsAsFactors = F)
 
+one <- sample51$`Main Accession`
+two <- sample52$`Main Accession`
+three <- sample53$`Main Accession`
+four <- sample61$`Main Accession`
+five <- sample62$`Main Accession`
+six <- sample63$`Main Accession`
+
+allSDS <- unique(c(one, two, three))
+allnoSDS <- unique(c(four, five, six))
+coreSDS <- list(Reduce(intersect, listNames[1:3]))[[1]]
+corenoSDS <- list(Reduce(intersect, listNames[4:6]))[[1]]
+
+### Venn diagram part
+##https://stackoverflow.com/questions/8713994/venn-diagram-proportional-and-color-shading-with-semi-transparency
+##https://www.datanovia.com/en/blog/venn-diagram-with-r-or-rstudio-a-million-ways/
+#if (!require(devtools)) install.packages("devtools")
+#devtools::install_github("yanlinlin82/ggvenn")
+#library(ggvenn)
+#ggvenn(
+#  listNames[1:3], 
+##  fill_color = c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF"),
+#  stroke_size = 0.5, set_name_size = 4)
+
+#if (!require(devtools)) install.packages("devtools")
+#devtools::install_github("gaospecial/ggVennDiagram")
+#library(ggVennDiagram)
+
+#ggVennDiagram(listNames) ## only 2-4 dimension! They're really good
+#ggVennDiagram(listNames[1:3], label_alpha=0)
+#ggVennDiagram(listNames[4:6], label_alpha=0)
+
+
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#  install.packages("BiocManager")
+#BiocManager::install("biomaRt")
+#install.packages('Bif  oVenn')
+library(BioVenn)
+BioVenn::draw.venn(one, two, three, title = "SDS", subtitle = "",
+                   xtitle = "", ytitle = "", ztitle = "")
+BioVenn::draw.venn(four, five, six, title = "no SDS", subtitle = "",
+                   xtitle = "", ytitle = "", ztitle = "")
+BioVenn::draw.venn(allSDS, allnoSDS, list(), title = "SDS vs no SDS", 
+                   subtitle = "",
+                   xtitle = "", ytitle = "", ztitle = "")
+BioVenn::draw.venn(coreSDS, corenoSDS, list(), title = "SDS vs no SDS (core)", 
+                   subtitle = "",
+                   xtitle = "", ytitle = "", ztitle = "")
+
+## Option 4. venneuler
+#install.packages('venneuler')
+library(venneuler)
+
+df <- data.frame(elements=c(one, two, three),
+                 sets=c(rep("51", length(one)), rep("52", length(two)), rep("53", length(three))))
+vdf <- venneuler(df)
+plot(vdf)
+
+df <- data.frame(elements=c(four, five, six),
+                 sets=c(rep("61", length(four)), rep("62", length(five)), rep("63", length(six))))
+vdf <- venneuler(df)
+plot(vdf)
+
+df <- data.frame(elements=c(allSDS, allnoSDS), 
+                 sets=c(rep("allSDS", length(allSDS)), rep("allnoSDS", length(allnoSDS))))
+vdf <- venneuler(df)
+plot(vdf)
+
+df <- data.frame(elements=c(coreSDS, corenoSDS), 
+                 sets=c(rep("coreSDS", length(coreSDS)), rep("corenoSDS", length(corenoSDS))))
+vdf <- venneuler(df)
+plot(vdf)
+
+
+#install.packages('nVennR')
+library(nVennR)
+myV2 <- plotVenn(
+  list(one, two, three), 
+  outFile = "test.svg")
+
+
+#install.packages("VennDiagram")
+library(VennDiagram) 
+venn.diagram(x = list(one, two, three), 
+             fill = c("lightblue", "green", "blue"),
+             alpha = c(0.5, 0.5, 0.5), category = rep("", 3), 
+             filename = "VennDiagram.svg", imagetype = "svg", height = 10, width = 10)
+## why the heck isn't it proportional?!
+
+#install.packages('eulerr')
+library(eulerr)
+plot(venn(list(one = unique(one), two = unique(two), three = unique(three))))
+plot(euler(list(one = unique(one), two = unique(two), three = unique(three))))
+plot(euler(list(four = unique(four), five = unique(five), six = unique(six))))
+plot(euler(list(allSDS = allSDS, allnoSDS = allnoSDS)))
+plot(euler(list(coreSDS = coreSDS, corenoSDS = corenoSDS)))
+plot(euler(list(one = unique(one), two = unique(two), three = unique(three), 
+                four = unique(four), five = unique(five), six = unique(six))))
+
+diamond <- read.delim("EveGHHK01_and_contam.diamond.tsv", header = F, stringsAsFactors = F)
 
 found.proteins <- data.frame(Accession = found, Annotation = NA)
 found.proteins$Accession <- as.character(found.proteins$Accession)
@@ -51,10 +152,7 @@ allsamples <- merge(samples5, samples6, by = "Main Accession", all = TRUE)
 ## TODO: put here back all the commands to run TMHMM etc
 
 tm_vect <- readLines("Fig2A_proteins_with_TMHs_ids.txt")
-<<<<<<< HEAD
-=======
 
->>>>>>> 1e76151c0a7fd333de247b91be631c87354de277
 sample51$shortnames <- gsub("(+)", "", gsub(".1|:", "1", gsub("-", "", gsub("(-)", "", sample51$`Main Accession`,
                                               fixed = T), fixed = T), fixed = T), fixed = T)
 sample52$shortnames <- gsub("(+)", "", gsub(".1|:", "1", gsub("-", "", gsub("(-)", "", sample52$`Main Accession`,
@@ -102,8 +200,6 @@ ggsave("Fig2A_tm_percent.svg", width = 7, height = 3)
 
 TMs$Present.in.SDS <- sapply(TMs$`Protein ID`, function(x) sum(grepl(x, sample10$shortnames), grepl(x, sample11$shortnames), grepl(x, sample12$shortnames)))
 TMs$Present.in.no.SDS <- sapply(TMs$`Protein ID`, function(x) sum(grepl(x, sample20$shortnames), grepl(x, sample21$shortnames), grepl(x, sample22$shortnames)))
-
-
 
 ## add transmembrane!! 
 # TMs <- read.csv("all_found_proteins.tmhmm.csv", head = F, sep = " ", stringsAsFactors = F)
