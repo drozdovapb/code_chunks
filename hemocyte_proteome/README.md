@@ -9,3 +9,12 @@ Should contain:
 `java -cp $appdir/PeptideShaker-1.16.45/PeptideShaker-1.16.45.jar eu.isas.peptideshaker.cmd.ReportCLI -in PeptideShaker_output.cpsx -reports "6" -out_reports .`
 
 2. The code used to create figures and input data for reproducibility.
+
+
+SignalP
+`./signalp-5.0 -fasta all_proteins.fasta -mature`
+(Note to self: signalp-5.0b only runs from its folder or needs to be copies to /bin and /lib; see the manual)
+
+TMHMM
+`perl ~/lib/tmhmm-2.0c/bin/tmhmm all_found_proteins_mature.fasta >all_found_proteins_mature.tmhmm`
+`grep "Number of predicted TMHs: " all_found_proteins_mature.tmhmm | grep -v "Number of predicted TMHs:  0" >proteins_with_TMHs_ids_numbers.txt`
