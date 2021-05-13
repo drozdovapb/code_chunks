@@ -14,6 +14,19 @@ CLI PeptideShaker report export:
 `java -cp $appdir/PeptideShaker-1.16.45/PeptideShaker-1.16.45.jar eu.isas.peptideshaker.cmd.ReportCLI -in PeptideShaker_output.cpsx -reports "6" -out_reports .`
 
 3. Sequence annotation: `diamond`, `panther`
+4. cat all_found_proteins_mature.fasta all_found_proteins.fasta >mature_all_found_proteins.fasta
+  538  /media/secondary/apps/seqkit rmdup -n mature_all_found_proteins.fasta 
+  539  /media/secondary/apps/seqkit rmdup -n mature_all_found_proteins.fasta >mature_all_found_proteins_dedup.fasta 
+ Funnily enough, it worked!
+ 
+ 
+perl ~/lib/tmhmm-2.0c/bin/tmhmm mature_all_found_proteins.fasta >all_found_proteins_mature.tmhmm
+## Даже быстрее, чем я думала.
+##tmhmm устанавливается легко, требует только исправления расположения perl
+
+[comment]: <> `grep "Number of predicted TMHs: " all_found_proteins_mature.tmhmm | grep -v "Number of predicted TMHs:  0" | sed -e's/_.*//g' | sed -e's/# ' >proteins_with_TMHs_main_accession.txt` </br>
+`grep "Number of predicted TMHs: " all_found_proteins_mature.tmhmm | grep -v "Number of predicted TMHs:  0" | sed -e's/# //g' | sed -e 's/ .*//g' >Fig2A_proteins_with_TMHs_ids.txt` </br>
+`grep "Number of predicted TMHs: " all_found_proteins_mature.tmhmm | grep -v "Number of predicted TMHs:  0" >proteins_with_TMHs_ids_numbers.txt` </br>
 
 4. Table S1 construction.
 
