@@ -151,7 +151,7 @@ allsamples <- merge(samples5, samples6, by = "Main Accession", all = TRUE)
 ## Transmembrane
 ## TODO: put here back all the commands to run TMHMM etc
 
-tm_vect <- readLines("Fig2A_proteins_with_TMHs_ids.txt")
+tm_vect <- readLines("Sequence_data/Fig2A_proteins_with_TMHs_ids.txt")
 
 sample51$shortnames <- gsub("(+)", "", gsub(".1|:", "1", gsub("-", "", gsub("(-)", "", sample51$`Main Accession`,
                                               fixed = T), fixed = T), fixed = T), fixed = T)
@@ -196,7 +196,7 @@ ggplot(TMs.melt, aes(x = sample, y = prop, fill = `Presence of TM domain`)) +
   ylab("% of the total proteins") + 
   geom_text(aes(label = `Number of proteins`), position = position_stack(vjust = 0.5)) + 
   theme_classic(base_size = 16)
-ggsave("Fig2A_tm_percent.svg", width = 7, height = 3)
+ggsave("Fig2A_tm_percent.svg", width = 6.3, height = 3)
 
 TMs$Present.in.SDS <- sapply(TMs$`Protein ID`, function(x) sum(grepl(x, sample10$shortnames), grepl(x, sample11$shortnames), grepl(x, sample12$shortnames)))
 TMs$Present.in.no.SDS <- sapply(TMs$`Protein ID`, function(x) sum(grepl(x, sample20$shortnames), grepl(x, sample21$shortnames), grepl(x, sample22$shortnames)))
