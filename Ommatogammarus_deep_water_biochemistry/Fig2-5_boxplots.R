@@ -1,5 +1,5 @@
 ## boxplots
-options(stringsAsFactors = T)
+## options(stringsAsFactors = T) ## for R 3.x
 
 library(ggplot2)
 library(openxlsx)
@@ -9,6 +9,7 @@ library(ggpubr)
 library(data.table)
 #remotes::install_github("thegeologician/ggprovenance")
 library(ggprovenance)
+
 
 ## Read data 
 ###### 
@@ -44,7 +45,7 @@ for (i in 2:13) {
   
   
 
-    ## Former Figure 3 + supplementary
+    ## Figure 2 + supplementary
     ##### 
 
     ## doesn't work... never mind
@@ -148,12 +149,13 @@ plots3_to_6 <- function(plot3data) {
     return(p)
 }
 
-
+###Figure 2
 plots3_to_6(droplevels(plot3data[plot3data$Parameter %in% c("Glucose", "Glycogen", "LDH", 
                                                             "ATP", "ADP", "AMP"), ]))
 ggsave("Fig2_15_energy_only_catch_adj.png", width = 260, height = 150, units = "mm")
 
 
+###Figure 3
 plots3_to_6(droplevels(plot3data[plot3data$Parameter %in% c("CAT", "GST", "POD",
                       "DC, neutral lipids", "TC, neutral lipids", "SB, neutral lipids",
                       "DC, phospholipids", "TC, phospholipids", "SB, phospholipids"), ]))
@@ -269,6 +271,8 @@ p6t <-
             data=data.frame(x=c(1,1,1,1), y=c(.1,1,823,823), lab=c(""), PParameter = "LDH (2015)",
                             vjust=1))
 
+#######p6 is now p4 top!
+
 
 #p4
 #p4b <- ggplot_build(p4)  
@@ -279,11 +283,11 @@ p6t <-
 plot6data <- p6b$data[[2]][, c("middle", "PANEL", "group")]
 names(plot6data)[1] <- "median"
 plot6data$Species <- ifelse(plot6data$group == 1, "O. flavus", "O. albinus")
-write.xlsx(plot6data, "Fig6_data.xlsx")
+write.xlsx(plot6data, "Fig6_data.xlsx") ##TODO should be p4top
 
 
 
-## Adenylates
+## Adenylates ### p4 bottom
 ddata <- alldata[alldata$Parameter %in% c(
   "AMP", "ADP", "ATP", "AEC"
 ) & (
@@ -365,6 +369,9 @@ ggsave("Fig4_Energy_Adenylates_common_depths.svg", p67, width = 260, height = 20
 
 ###FIGURE 5 NEW
 
+
+###Fig 5 TOP
+
 ddata <- alldata[alldata$Parameter %in% c(
   "CAT", "GST", "POD"
 ) & (
@@ -406,7 +413,7 @@ ddata <- alldata[alldata$Parameter %in% c(
     tempdata <- ddata[ddata$SpeciesYearEnzyme == i, ]
     #print(tempdata)
     p <- wilcox.test(tempdata$Value ~ tempdata$Condition)$p.value
-    print(p)
+    #print(p)
     padjusted <- p.adjust(p, method = "holm", n = 4)
     print(padjusted)
     padjvect.w.o <- c(padjvect.w.o, padjusted)
@@ -429,7 +436,7 @@ p4t <-  p4 + geom_text(data = signif.df, aes(x = xstart, y = ypos, label = signi
                  inherit.aes = F, size = 7) + theme(axis.title.x=element_blank(),
                                                     #axis.text.x=element_blank(),axis.ticks.x=element_blank(),
                                                     )
-  #p4
+  p4t
   #p4b <- ggplot_build(p4)  
   #ggsave("Fig4_AOS_common_depths_4comparisons.png", width = 260, height = 100, units = "mm")
   #ggsave("Fig4_AOS_common_depths_4comparisons.svg", width = 260, height = 100, units = "mm")
@@ -456,11 +463,10 @@ p4t <-  p4 + geom_text(data = signif.df, aes(x = xstart, y = ypos, label = signi
   
   
 
-## Figure 5
+## Figure 5 bottom
 ## Lipid peroxidation & enzymes
     
 ddata <- alldata[alldata$Parameter %in% c(
-#  "CAT", "GST", "POD",
   "DC, neutral lipids", "TC, neutral lipids", "SB, neutral lipids", 
   "DC, phospholipids", "TC, phospholipids", "SB, phospholipids"
   ) & (
@@ -506,7 +512,9 @@ ddata <- alldata[alldata$Parameter %in% c(
   }
 
 ## manually
+
   
+  ### HERE is the swapping facets problem  
   ## if we think there are just 4 multiple comparisons
 p5t <-  
   p5 + geom_text(data = data.frame(x = 2.25, y = 1.25, label = "*", Parameter = "DC, neutral lipids"), 

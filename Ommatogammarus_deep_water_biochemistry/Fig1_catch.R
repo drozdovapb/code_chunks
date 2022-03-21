@@ -4,6 +4,7 @@ library(ggplot2)
 library(forcats)
 #library(cowplot) ##maybe helps with svg? Nope. It doesn't 
 library(png)
+library(svglite)
 #install.packages("png")
 
 ## read data
@@ -28,6 +29,6 @@ ggplot(datadepth, aes(y = Value, x = `Depth,.m`, fill=Species, col=Species)) +
   theme(strip.text.x = element_text(face = "italic", size = 12), 
     legend.position="none", panel.grid.minor.y=element_blank())
 
-ggsave("Fig2_catch.png", width = 20, height = 10, units = "cm")
-ggsave("Fig2_catch.svg", width = 20, height = 10, units = "cm")
+ggsave("Fig1_catch.png", width = 20, height = 10, units = "cm")
+ggsave("Fig1_catch.svg", width = 20, height = 10, units = "cm")
 ## Then, the photos were added in Inkscape
