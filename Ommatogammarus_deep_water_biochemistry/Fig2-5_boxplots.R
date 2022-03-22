@@ -5,6 +5,7 @@ library(ggplot2)
 library(openxlsx)
 library(reshape2)
 library(gridExtra)
+## system-wide apt install libnlopt-dev
 library(ggpubr)
 library(data.table)
 #remotes::install_github("thegeologician/ggprovenance")
@@ -343,13 +344,8 @@ signif.df <- data.frame(p.adj = padjvect,
                         xstart = p7b$data[[2]]$xmin[seq(2, 16, 2)],
                         ypos = c(2, 1.8, 0.4, 0.42, 0.3, 0.28, 0.95, 0.85),
                         Species = NA)
+signif.df$Parameter <- factor(signif.df$Parameter, levels = unique(signif.df$Parameter))
 
-p7 + geom_text(data = signif.df, aes(x = xstart, y = ypos, label = signif), 
-               inherit.aes = F, size = 7)
-#p4
-#p4b <- ggplot_build(p4)  
-ggsave("Fig7_Adenylates_common_depths_2comparisons.png", width = 260, height = 100, units = "mm")
-ggsave("Fig7_Adenylates_common_depths_2comparisons.svg", width = 260, height = 100, units = "mm")
 
 ## save the data
 plot7data <- p7b$data[[2]][, c("middle", "PANEL", "group")]
@@ -384,7 +380,7 @@ ddata <- alldata[alldata$Parameter %in% c(
 
 
 
-  p4 <-   
+  p5top <-   
   ggplot(ddata, 
            aes(x = Year, y = Value, fill = Species, col = Condition)) +
       expand_limits(y=0) +
@@ -399,11 +395,11 @@ ddata <- alldata[alldata$Parameter %in% c(
       scale_color_manual(values = c("green4", "black")) #+ 
     ## too hard to define stat_compare_means in here
   
-  p4
+  p5top
   
   ## to get parameters
-  p4b <- ggplot_build(p4)  
-  p4b$data
+  p5topb <- ggplot_build(p5top)  
+  p5topb$data
   
   ## just calculate
   padjvect.w.o <- c()
@@ -428,39 +424,24 @@ ddata <- alldata[alldata$Parameter %in% c(
                                           ifelse(padjvect > 0.01, "*", 
                                                  ifelse(padjvect > 0.001, "**", "***"))),  #formatC(p.adj, digits = 1)
                           Parameter = c(rep("CAT", 4), rep("GST", 4), rep("POD", 4)),
-                          xstart = p4b$data[[2]]$xmin[seq(2, 24, 2)],
+                          xstart = p5topb$data[[2]]$xmin[seq(2, 24, 2)],
                           ypos = c(1250, 800, 1250, 1600, 20, 8, 20, 13.5, 0.08, 0.05, 0.1, 0.13),
                           Species = NA)
   
-p4t <-  p4 + geom_text(data = signif.df, aes(x = xstart, y = ypos, label = signif), 
+p5topt <-  p5top + geom_text(data = signif.df, aes(x = xstart, y = ypos, label = signif), 
                  inherit.aes = F, size = 7) + theme(axis.title.x=element_blank(),
                                                     #axis.text.x=element_blank(),axis.ticks.x=element_blank(),
                                                     )
-  p4t
+  p5topt
   #p4b <- ggplot_build(p4)  
   #ggsave("Fig4_AOS_common_depths_4comparisons.png", width = 260, height = 100, units = "mm")
   #ggsave("Fig4_AOS_common_depths_4comparisons.svg", width = 260, height = 100, units = "mm")
 
   
-  plot4data <- p4b$data[[2]][, c("middle", "PANEL", "group")]
-  names(plot4data)[1] <- "median"
-  plot4data$Species <- ifelse(plot4data$group == 1, "O. flavus", "O. albinus")
-  write.xlsx(plot4data, "Fig4_data.xlsx")
-  
-#  ggsave("Fig4_AOS_common_depths_12comparisons.png", width = 260, height = 130, units = "mm")
-#  ggsave("Fig4_AOS_common_depths_12comparisons.svg", width = 260, height = 130, units = "mm")
- 
-  
-  #geom_text(data = data.frame(x = 0.75, y = 20, label = "*", Parameter = "GST"), 
-  #          aes(x=x, y=y, label=label), 
-   #         inherit.aes = F, size = 7) + 
-   # geom_text(data = data.frame(x = 2.25, y = 0.125, label = "**", Parameter = "POD"), 
-  #            aes(x=x, y=y, label=label), 
-  #            inherit.aes = F, size = 7) + 
-  #  geom_text(data = data.frame(x = 1.25, y = 0.125, label = "**", Parameter = "GST"), 
-  #            aes(x=x, y=y, label=label), 
-  #            inherit.aes = F, size = 7)
-  
+  plot5topdata <- p45top$data[[2]][, c("middle", "PANEL", "group")]
+  names(plot5topdata)[1] <- "median"
+  plot5topdata$Species <- ifelse(plot5topdata$group == 1, "O. flavus", "O. albinus")
+  write.xlsx(plot4data, "Fig5top_data.xlsx")
   
 
 ## Figure 5 bottom
@@ -516,8 +497,11 @@ ddata <- alldata[alldata$Parameter %in% c(
   
   ### HERE is the swapping facets problem  
   ## if we think there are just 4 multiple comparisons
+signif.df <- data.frame(x = 2.25, y = 1.25, label = "*", Parameter = "DC, neutral lipids")
+signif.df$Parameter <- factor(signif.df$Parameter, levels = levels(ddata$Parameter))
+  
 p5t <-  
-  p5 + geom_text(data = data.frame(x = 2.25, y = 1.25, label = "*", Parameter = "DC, neutral lipids"), 
+  p5 + geom_text(data = signif.df, 
                  aes(x=x, y=y, label=label), 
                inherit.aes = F, size = 7) 
 
