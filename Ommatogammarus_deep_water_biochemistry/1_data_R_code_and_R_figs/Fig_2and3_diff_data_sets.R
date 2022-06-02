@@ -1,0 +1,193 @@
+## box plots
+## options(stringsAsFactors = T) ## for R 3.x
+
+library(ggplot2)
+library(openxlsx)
+#library(reshape2)
+library(gridExtra)
+## system-wide apt install libnlopt-dev
+library(ggpubr)
+library(data.table)
+#remotes::install_github("thegeologician/ggprovenance")
+library(ggprovenance)
+
+
+## Read data 
+###### 
+### Read all the data in one data frame
+alldata <- read.xlsx("Table S2 all_markers_Ofla_Oalb.xlsx", sheet = 1)
+for (i in 2:15) {
+  tempdata <- read.xlsx("Table S2 all_markers_Ofla_Oalb.xlsx", sheet = i) 
+  alldata <- rbind(alldata, tempdata)
+}
+
+### Deal with factor levels
+alldata$Year <- factor(alldata$Year)
+alldata$Parameter <- factor(alldata$Parameter, levels = c(
+  "Glucose", "Glycogen Glucose corrected", "LDH",
+  "ATP ", "ADP ", "AMP", "AEC",
+  "CAT", "GST", "POD", 
+  "Heptane, diene conjugates", "Heptane, triene conjugates", "Heptane, Schiff bases", 
+  "Isopropanole, diene conjugates", "Isopropanole, triene conjugates", "Isopropanole, Schiff bases"))
+
+## again, exchange flavus <-> albinus
+alldata$Species <- factor(alldata$Species, levels = c("O. flavus", "O. albinus"))
+
+
+levels(alldata$Parameter) <- c(
+  "Glucose", "Glycogen", "LDH",
+  "ATP", "ADP", "AMP", "AEC",
+  "CAT", "GST", "POD", 
+  "DC, neutral lipids", "TC, neutral lipids", "SB, neutral lipids", 
+  "DC, phospholipids", "TC, phospholipids", "SB, phospholipids")
+
+alldata$`Depth,.m` <- factor(alldata$`Depth,.m`)
+
+
+
+
+## Figure 2 + supplementary
+##### 
+
+plot3data <- droplevels(alldata[!(alldata$Parameter=="AEC") & alldata$Year %in% c(2015, 2016),])
+pd = position_jitterdodge(dodge.width = 0.75, jitter.width = 0.3)
+
+plot3data <- data.table(plot3data)
+plot3data[, y_max := max(Value, na.rm = T)*1.2 , by = Parameter]
+plot3data[, y_min := max(Value, na.rm = T)*(-0.5) , by = Parameter]
+
+plots3_to_6 <- function(plot3data) { 
+  p <- 
+    ggplot(plot3data, 
+           aes(x = Species, y = Value, ymin = 0)) +
+    geom_boxplot(outlier.alpha = 0, alpha = 0.5, aes(fill=Year)) + #because we are plotting all points anyway!!! 
+    geom_point(size = 1, alpha = 0.5, aes(fill = Year, group = Year, col = `Depth,.m`, shape = `Depth,.m`), 
+               position = position_jitterdodge(jitter.width = 0.5)) + 
+    scale_fill_manual(values = c("grey", "white")) +
+    #      scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")) +
+    scale_color_manual(values = c("deepskyblue", "deepskyblue", "deepskyblue", 
+                                  "cornflowerblue", "cornflowerblue", "cornflowerblue", "darkblue", "darkblue")) +
+    scale_shape_manual(values = c(3, 8, 19, 3, 8, 19, 8, 19)) +
+    facet_wrap( ~ Parameter, ncol = 3, scales = "free") + 
+    theme_bw(base_size = 14) + 
+    theme(strip.text.x = element_text(size=12),
+          axis.text.x = element_text(face = "italic"), 
+          legend.text = element_text(size = 12),
+          legend.title = element_text(size = 14),
+          panel.grid.major.x = element_blank()) +
+    xlab("") + ylab("") + labs(col = "Depth, m", shape = "Depth, m") +
+    geom_blank(aes(y=y_max)) + geom_blank(aes(y=y_min)) + 
+    geom_hline(yintercept = 0, linetype = "dotted") +
+    #  scale_y_continuous(breaks = prettyBreaks(range = c(0, y_max))) 
+    scale_y_continuous(breaks = function(x) prettyBreaks(range = c(0, max(x) * 1.2), n.major = 4))
+  #    scale_y_continuous(breaks = scales::pretty_breaks(min.y = .01, n = 5))
+  #scale_y_continuous(expand = c(0, 0, 0.05, 0)) 
+  
+  padjSpecies <- data.frame(Parameter = rep(levels(plot3data$Parameter), each = 2), pval = NA, ymin = NA, ymax = NA,
+                            xmin=rep(c(0.9,1.3), length(levels(plot3data$Parameter))), 
+                            xmax=rep(c(1.7,2.1), length(levels(plot3data$Parameter))), 
+                            coord=rep(c(1.05, 1.75), length(levels(plot3data$Parameter))))
+
+  padjSpecies$Parameter <- factor(padjSpecies$Parameter, levels = levels(plot3data$Parameter))
+  
+  m <- 0
+  for (i in levels(plot3data$Parameter)) {
+    print(levels(plot3data$Parameter[i]))
+    for (j in levels(plot3data$Year)) {
+      m <- m+1
+      tempdata <- plot3data[plot3data$Parameter == i & 
+                              plot3data$Year == j, ]
+      pw <- wilcox.test(tempdata$Value ~ tempdata$Species)$p.value
+      print(pw)
+      padjusted <- p.adjust(pw, method = "holm", n = 4)
+      print(padjusted)
+      padjSpecies$pval[m] <- ifelse(padjusted < 0.05, formatC(padjusted, digits = 1),
+                                    "")
+      padjSpecies$ymin[m] <- min(tempdata$y_min)
+      padjSpecies$ymax[m] <- max(tempdata$y_max) * (1 + (as.numeric(j)-2014)/5)
+    }}
+  padjSpecies
+  
+  
+
+  
+  p <- 
+    p + geom_signif(data = padjSpecies, aes(xmin = xmin, xmax = xmax, 
+                                            y_position = ymax*.8, annotations = ""), 
+                    inherit.aes = T, manual = T, tip_length = c(.075, .075)) + 
+    geom_text(data = padjSpecies, fontface = "bold",
+              aes(x=coord, y = ymax*.9, label = pval), 
+              inherit.aes = T)
+
+  
+  ## upper brackets
+  
+  
+  padjYear <- data.frame(Parameter = rep(levels(plot3data$Parameter), each = 2), pval = NA, ymin = NA, 
+                         coord=rep(c(1, 2), length(levels(plot3data$Parameter))))
+  padjYear$Parameter <- factor(padjYear$Parameter, levels = levels(plot3data$Parameter))
+  
+  m <- 0
+  for (i in levels(plot3data$Parameter)) {
+    print(levels(plot3data$Parameter[i]))
+    for (j in levels(plot3data$Species)) {
+      m <- m+1
+      tempdata <- plot3data[plot3data$Parameter == i & 
+                              plot3data$Species == j, ]
+      pw <- wilcox.test(tempdata$Value ~ tempdata$Year)$p.value
+      print(pw)
+      padjusted <- p.adjust(pw, method = "holm", n = 4)
+      print(padjusted)
+      padjYear$pval[m] <- ifelse(padjusted < 0.05, formatC(padjusted, digits = 1),
+                                 "")
+      padjYear$ymin[m] <- min(tempdata$y_min)
+    }}
+  padjYear
+  
+
+
+  
+  p <- 
+    p + geom_signif(data = padjYear, aes(xmin = coord-.2, xmax = coord+.2, 
+                                         y_position = ymin*0.5, annotations = ""), 
+                    inherit.aes = F, manual = T, tip_length = c(-0.075, -0.075)) +
+    geom_text(data = padjYear, fontface = "bold",
+              aes(x=coord, y = ymin*.7, label = pval), 
+              inherit.aes = F)
+  
+  #    print(p) 
+  return(p)
+}
+
+###Figure 2
+plots3_to_6(plot3data = droplevels(plot3data[plot3data$Parameter %in% c("Glucose", "Glycogen", "LDH", 
+                                                            "ATP", "ADP", "AMP"), ]))
+ggsave("Fig 2.png", width = 260, height = 150, units = "mm")
+
+
+plots3_to_6(droplevels(plot3data[plot3data$Parameter %in% c("Glucose", "Glycogen", "LDH", 
+                                                            "ATP", "ADP", "AMP") & 
+                         plot3data$`Depth,.m` %in% c(100, 150, 200, 300) ,] ))
+ggsave("Fig 2 100 150 200 300.png", width = 260, height = 150, units = "mm")
+
+plots3_to_6(droplevels(plot3data[plot3data$Parameter %in% c("Glucose", "Glycogen", "LDH", 
+                                                            "ATP", "ADP", "AMP") & 
+                                   plot3data$`Depth,.m` == 300 ,] ))
+ggsave("Fig 2 only 300.png", width = 260, height = 150, units = "mm")
+
+###Figure 3
+levels3 <- c("CAT", "GST", "POD",
+             "DC, neutral lipids", "TC, neutral lipids", "SB, neutral lipids",
+             "DC, phospholipids", "TC, phospholipids", "SB, phospholipids")
+
+plots3_to_6(droplevels(plot3data[plot3data$Parameter %in% levels3, ]))
+ggsave("Fig 3.png", width = 260, height = 225, units = "mm")
+
+
+plots3_to_6(droplevels(plot3data[plot3data$Parameter %in% levels3 & 
+                                   plot3data$`Depth,.m` %in% c(100,150, 200, 300), ]))
+ggsave("Fig 3 100 150 200 300.png", width = 260, height = 225, units = "mm")
+
+plots3_to_6(droplevels(plot3data[plot3data$Parameter %in% levels3 & 
+                                   plot3data$`Depth,.m` == 300, ]))
+ggsave("Fig 3 300.png", width = 260, height = 225, units = "mm")
