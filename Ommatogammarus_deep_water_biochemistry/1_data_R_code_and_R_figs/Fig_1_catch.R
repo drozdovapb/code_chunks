@@ -8,14 +8,14 @@ library(svglite)
 #install.packages("png")
 
 ## read data
-datadepth <- read.xlsx("./Fig1_data_depth_distribution.xlsx", sheet = 1)
+datadepth <- read.xlsx("./Table S1_Depth distribution_Table MD.xlsx", sheet = 1)
 #datadepth$`Depth,.m`<- as.factor(datadepth$`Depth,.m`)
 
 
 ### first, depths as numbers 
 ##Species <-> levels in 
 datadepth$Species <- factor(datadepth$Species, levels = c("O. flavus", "O. albinus"))
-ggplot(datadepth, aes(y = Value, x = `Depth,.m`, fill=Species, col=Species)) + 
+ggplot(datadepth, aes(y = `Approx..number.of.animals`, x = `Depth,.m`, fill=Species, col=Species)) + 
   theme_bw() + 
   scale_fill_manual(values = c("orange", "beige")) +
   scale_color_manual(values = c("black", "red4")) +
