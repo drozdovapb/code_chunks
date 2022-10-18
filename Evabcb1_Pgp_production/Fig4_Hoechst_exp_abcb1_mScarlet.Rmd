@@ -1,0 +1,126 @@
+---
+title: "Fig 4 Hoechst experiment"
+author: "Polina Drozdova"
+date: "2022-10-18"
+output: html_document
+---
+
+## Introduction. Loading packages.
+
+```{r, include=TRUE}
+check_install_load <- function(packagename) {
+  if (!(packagename %in% installed.packages()))
+    install.packages(packagename)
+  library(packagename, character.only = TRUE)
+  }
+
+check_install_load("openxlsx")
+check_install_load("ggplot2")
+check_install_load("ggsignif")
+check_install_load("dunn.test")
+check_install_load("magrittr")
+check_install_load("multipanelfigure")
+```
+
+## Loading data & necessary adjustments
+
+```{r}
+dat <- read.xlsx("Data/Fig4_exp_data_all.xlsx")
+
+dat$Inhibitor <- paste(dat$`Inhibitor,.type`, dat$`Inhibitor,.concentration`)
+dat$Inhibitor <- gsub("without inhibitor NA", "Control (no inhibitor)", dat$Inhibitor)
+
+dat$cell.type <- factor(dat$cell.type, levels = c("mScarlet", "abcb1", "abcb1-mScarlet"))
+```
+
+
+## Plot all the data (3 cell lines x controls / inhibitors)
+
+```{r plot, echo=FALSE}
+pall <- 
+ggplot(dat, aes(Inhibitor, log10(RawintDen_H+1), col = cell.type, fill = Inhibitor)) + 
+  geom_boxplot() + #geom_jitter(width = .1) +
+  #  geom_signif(comparisons = list(c("without inhibitor NA", "CyclosporinA  6.25 uM", "CyclosporinA  25 uM"))) + 
+  facet_wrap(~ cell.type) +
+#  geom_hline(yintercept = bkgnd, linetype = "dotted") + 
+  ylab("log fluorescence intensity") + 
+  theme_bw() + theme(axis.text.x = element_text(angle = 90)) + 
+  scale_color_manual(values = c("grey20", "green4", "red4"), name = "Construct", guide = 'none') + 
+  scale_fill_manual(values = c("grey90", "grey60", "grey60", "grey60", "grey60"), guide = 'none')
+
+
+#ggsave("boxplots_Hoechst_log.png", width = 10, height = 5)
+#ggsave("boxplots_Hoechst_log.svg", width = 10, height = 5)
+
+```
+
+
+## Check the difference (non-parametric)
+
+```{r}
+## subset data
+mScdat <- dat[dat$cell.type == "mScarlet", ]
+abcb1dat <- dat[dat$cell.type == "abcb1", ]
+abcb1mScdat <- dat[dat$cell.type == "abcb1-mScarlet", ]
+
+## why non-parametric: Kolmogorov-Smirnov test with histograms
+ks.test(mScdat$RawintDen_H, y = "pnorm")
+hist(mScdat$RawintDen_H)
+ks.test(log10(mScdat$RawintDen_H+1), y = "pnorm")
+hist(log10(mScdat$RawintDen_H+1))
+ks.test(mScdat$RawintDen_H, y = "pnorm")
+ks.test(abcb1dat$RawintDen_H, y = "pnorm")
+ks.test(abcb1mScdat$RawintDen_H, y = "pnorm")
+
+## So, let's just run Dunn's
+## mScarlet
+dunn.test(x = mScdat$RawintDen_H, g = mScdat$Inhibitor, method = "Holm")
+
+## abcb1
+dunn.test(x = abcb1dat$RawintDen_H, g = abcb1dat$Inhibitor, method = "Holm")
+
+## abcb1-mSc
+dunn.test(x = abcb1mScdat$RawintDen_H, g = abcb1mScdat$Inhibitor, method = "Holm")
+```
+
+
+## Plot controls only
+
+```{r}
+
+datnoinhib <- dat[dat$`Inhibitor,.type` == "without inhibitor", ]
+
+pcontr <- 
+ggplot(datnoinhib, 
+       aes(cell.type, log10(RawintDen_H+1))) + 
+  geom_boxplot(aes(col = cell.type)) + #geom_jitter(width = .1) +
+  geom_signif(comparisons = list(c("mScarlet", "abcb1-mScarlet"), c("mScarlet", "abcb1"), c("abcb1", "abcb1-mScarlet")), 
+              map_signif_level = TRUE, step_increase = -.05, test = "wilcox.test", extend_line = 0, margin_top = .1, vjust = .5) + 
+  #  geom_hline(yintercept = bkgnd, linetype = "dotted") + 
+  ylab("log fluorescence intensity") + 
+  xlab("") +
+  theme_bw() + theme(axis.text.x = element_text(angle = 90)) + 
+  scale_color_manual(values = c("grey20", "green4", "red4"), name = "Construct") + 
+  scale_fill_manual(values = c("grey90", "grey60", "grey60", "grey60", "grey60"), guide = 'none')
+
+pcontr
+
+pairwise.wilcox.test(x = datnoinhib$IntDen_H, g = datnoinhib$cell.type)
+
+#ggsave("boxplots_Hoechst_controls.png", width = 5, height = 5)
+#ggsave("boxplots_Hoechst_log.svg", width = 5, height = 5)
+```
+
+## Plot final multipanel figure
+
+```{r}
+figureHoechst <- multi_panel_figure(
+  width = 175, height = 175,
+  columns = 2, rows = 2)
+figureHoechst %<>% fill_panel(pcontr, row = 1, col = 1)
+figureHoechst %<>% fill_panel(pall, row = 2, column = 1:2, label = "C")
+
+figureHoechst
+
+#ggsave("Hoechst_both_plots.svg", figureHoechst, width = 180, height = 180, units = 'mm')
+#ggsave("Hoechst_both_plots.png", figureHoechst, width = 180, height = 180, units = 'mm')
