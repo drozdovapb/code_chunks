@@ -56,6 +56,16 @@ plot3data <- data.table(plot3data)
 plot3data[, y_max := max(Value, na.rm = T)*1.2 , by = Parameter]
 plot3data[, y_min := max(Value, na.rm = T)*(-0.5) , by = Parameter]
 
+## a helper function to plot proper numbers
+## from here: https://stackoverflow.com/questions/61749815/convert-scientific-notation-e-to-10y-with-superscripts-in-geom-text
+expSup <- function(w, digits=0) {
+  wn <- as.numeric(w)
+  res <- ifelse(wn > 0.00099,
+    wn, sprintf(paste0('%.', digits, "f*x*10^%d"), wn/10^floor(log10(abs(wn))), floor(log10(abs(wn)))))
+  res[w==""] <- ""
+  return(res)
+}
+
 plots3_to_6 <- function(plot3data) { 
   p <- 
     ggplot(plot3data, 
@@ -109,15 +119,17 @@ plots3_to_6 <- function(plot3data) {
   padjSpecies
   
   
-  
+  padjSpecies$expval <- expSup(padjSpecies$pval)
+  #padjSpecies$parsedpval <- ifelse(padjSpecies$expval=="", "", str2lang(padjSpecies$expval))
+
   
   p <- 
     p + geom_signif(data = padjSpecies, aes(xmin = xmin, xmax = xmax, 
                                             y_position = ymax*.8, annotations = ""), 
                     inherit.aes = T, manual = T, tip_length = c(.075, .075)) + 
-    geom_text(data = padjSpecies, fontface = "bold",
-              aes(x=coord, y = ymax*.9, label = pval), 
-              inherit.aes = T)
+    geom_text(parse = T, data = padjSpecies, fontface = "bold",
+              aes(x=coord, y = ymax*.9, label = expval, 
+              inherit.aes = T))
   
   
   ## upper brackets
@@ -144,15 +156,16 @@ plots3_to_6 <- function(plot3data) {
     }}
   padjYear
   
-  
-  
+
+  padjYear$expval <- expSup(padjYear$pval)
+  #padjSpecies$parsedpval <- ifelse(padjSpecies$expval=="", "", str2lang(padjSpecies$expval))
   
   p <- 
     p + geom_signif(data = padjYear, aes(xmin = coord-.2, xmax = coord+.2, 
                                          y_position = ymin*0.5, annotations = ""), 
                     inherit.aes = F, manual = T, tip_length = c(-0.075, -0.075)) +
-    geom_text(data = padjYear, fontface = "bold",
-              aes(x=coord, y = ymin*.7, label = pval), 
+    geom_text(parse = T, data = padjYear, fontface = "bold",
+              aes(x=coord, y = ymin*.7, label = expval), 
               inherit.aes = F)
   
   #    print(p) 
@@ -163,14 +176,14 @@ plots3_to_6 <- function(plot3data) {
 plots3_to_6(droplevels(plot3data[plot3data$Parameter %in% c("Glucose", "Glycogen", "LDH", 
                                                             "ATP", "ADP", "AMP"), ]))
 ggsave("Fig 2.png", width = 260, height = 150, units = "mm")
-
+ggsave("Fig 2.svg", width = 260, height = 150, units = "mm")
 
 ###Figure 3
 plots3_to_6(droplevels(plot3data[plot3data$Parameter %in% c("CAT", "GST", "POD",
                       "DC, neutral lipids", "TC, neutral lipids", "SB, neutral lipids",
                       "DC, phospholipids", "TC, phospholipids", "SB, phospholipids"), ]))
 ggsave("Fig 3.png", width = 260, height = 225, units = "mm")
-
+ggsave("Fig 3.svg", width = 260, height = 225, units = "mm")
 
 # ## save data for Fig. 3
 # plot2data <- p2$data[[1]][, c("middle", "PANEL", "group")]

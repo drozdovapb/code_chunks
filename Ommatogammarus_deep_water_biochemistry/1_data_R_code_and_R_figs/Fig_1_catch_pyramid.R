@@ -71,4 +71,4 @@ ggplot(datadepth, aes(y = numberwithspecies, x = `Depth,.m`, fill=Species, col=S
 #        legend.background = element_rect(fill = "lightgrey"))
 
 #ggsave("Fig1_catch_pyramids_years.png", width = 20, height = 10, units = "cm")
-ggsave("Fig1_catch_pyramids_years.svg", width = 20, height = 10, units = "cm")
+ggsave("Fig1_catch_pyramids_years.svg", width = 19.5, height = 9.25, units = "cm")
