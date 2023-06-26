@@ -5,7 +5,7 @@ library(ggimage)
 #library(treeio)
 
 ## read the tree
-abcbf <- read.tree("ABCBs_wref_ed.aln.treefile")
+abcbf <- read.tree("Data/Fig1B_ABCBs_wref_ed.aln.treefile")
 
 #abcbf$tip.label <- gsub("_rnaspades.fasta.transdecoder.pep.repr.faa.*", "", abcbf$tip.label)
 
