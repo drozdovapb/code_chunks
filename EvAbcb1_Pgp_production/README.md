@@ -1,16 +1,7 @@
-This directory contains companion scripts and associated data for the Lubyaga *et al*. manuscript on the production of *Eulimnogammarus verrucosus* p-glycoprotein in *Drosophila melanogaster* S2 cells (to be submitted).
+This directory contains companion scripts and associated data for the Lubyaga *et al*. manuscript on the production of *Eulimnogammarus verrucosus* p-glycoprotein in *Drosophila melanogaster* S2 cells now published in CBPC:
+Lubyaga Y, Yarinich L, Drozdova P, Pindyurin A, Gurkov A, Luckenbach T, Timofeyev M. The ABCs of the amphipod P-glycoprotein: Heterologous production of the Abcb1 protein of a model species *Eulimnogammarus verrucosus* (Amphipoda: Gammaridae) from Lake Baikal. Comparative Biochemistry and Physiology Part C: Toxicology & Pharmacology. 2023 9:109677.
+https://doi.org/10.1016/j.cbpc.2023.109677
 
 
-
-### The diversity of ABC transporter sequences in amphipod transcriptomes
-  * `11_TableS1_make_table_Completeness_ABCs.R`
-  * `12_FigS1_corr_completeness_sumABC.R`
-  * `13_Fig1A_ABC_number.R`
-  * `14_Fig1B_ggtree.R`
-
-
-### Stable expression of EvAbcb1 in the Drosophila S2 cell line
-  * 31_abcb1_check_with_qPCR.R
-  * 41_Fig4_Hoechst_exp_abcb1_mScarlet.Rmd
-  * To access the statistical analysis report without downloading the repository the please use the following link:
-  https://htmlpreview.github.io/?https://github.com/drozdovapb/code_chunks/blob/master/Evabcb1_Pgp_production/41_Fig4_Hoechst_exp_abcb1_mScarlet.html
+To access the statistical analysis report without downloading the repository the please use the following link:
+  https://htmlpreview.github.io/?https://github.com/drozdovapb/code_chunks/blob/master/EvAbcb1_Pgp_production/6_Fig4_Hoechst_exp_abcb1_mScarlet.html
