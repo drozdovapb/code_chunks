@@ -71,6 +71,24 @@ p1 <- ggplot(datadepth, aes(y = numberwithspecies, x = `Depth,.m`, fill=Species,
 #        legend.background = element_rect(fill = "lightgrey"))
 
 p1
+
+ggplot(datadepth, aes(y = numberwithspecies, x = `Depth,.m`, fill=Species, col=Species)) + 
+  theme_bw(base_size = 12) + 
+  scale_fill_manual(values = c("orange", "beige")) +
+  scale_color_manual(values = c("black", "red4")) +
+  geom_bar(stat = "identity", aes(col = Species)) +
+  #geom_point(cex = 0.3, alpha=.9, position = position_jitter(width = .1, h = 0)) + 
+  xlab("Depth, m") +
+  scale_x_reverse(breaks = c(1000, 750, 500, 300, 200, 150, 100, 50)) +
+  coord_flip()   +
+  ylab(label = "Number of animals") +
+  scale_y_continuous(breaks = c(-750, -500, -250, 0, 250, 500),
+                     labels = c("750", "500", "250", "0", "250", "500")) + 
+  facet_grid(Year  ~ ., drop = T, scales = "free", space = "free") + #, space = "free", scales = "free") +
+  theme(strip.text.x = element_text(face = "italic", size = 12),
+        strip.text.y = element_text(size = 12),
+        panel.grid.minor.y=element_blank(), legend.position="none")
+
 #ggsave("Fig1_catch_pyramids_years.png", width = 20, height = 10, units = "cm")
 ggsave("Fig1_catch_pyramids_years.svg", width = 19.5, height = 9.25, units = "cm")
 
