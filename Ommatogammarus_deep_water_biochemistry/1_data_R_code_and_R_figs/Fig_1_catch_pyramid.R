@@ -72,6 +72,11 @@ p1 <- ggplot(datadepth, aes(y = numberwithspecies, x = `Depth,.m`, fill=Species,
 
 p1
 
+#ggsave("Fig1_catch_pyramids_years.png", width = 20, height = 10, units = "cm")
+ggsave("Fig1_catch_pyramids_years.svg", width = 19.5, height = 9.25, units = "cm")
+
+## for SH's dissertaiton
+
 ggplot(datadepth, aes(y = numberwithspecies, x = `Depth,.m`, fill=Species, col=Species)) + 
   theme_bw(base_size = 12) + 
   scale_fill_manual(values = c("orange", "beige")) +
@@ -81,18 +86,13 @@ ggplot(datadepth, aes(y = numberwithspecies, x = `Depth,.m`, fill=Species, col=S
   xlab("Depth, m") +
   scale_x_reverse(breaks = c(1000, 750, 500, 300, 200, 150, 100, 50)) +
   coord_flip()   +
-  ylab(label = "Number of animals") +
+  ylab("Количество животных") + xlab("Глубина, м") + 
   scale_y_continuous(breaks = c(-750, -500, -250, 0, 250, 500),
                      labels = c("750", "500", "250", "0", "250", "500")) + 
-  facet_grid(Year  ~ ., drop = T, scales = "free", space = "free") + #, space = "free", scales = "free") +
+  facet_grid(Year ~ Species, drop = T, scales = "free", space = "free") + #, space = "free", scales = "free") +
   theme(strip.text.x = element_text(face = "italic", size = 12),
         strip.text.y = element_text(size = 12),
-        panel.grid.minor.y=element_blank(), legend.position="none")
+        legend.position="none")
 
-#ggsave("Fig1_catch_pyramids_years.png", width = 20, height = 10, units = "cm")
-ggsave("Fig1_catch_pyramids_years.svg", width = 19.5, height = 9.25, units = "cm")
-
-## for SH's dissertaiton
-p1 + ylab("Количество животных") + xlab("Глубина, м")
 ggsave("Fig1_catch_pyramids_years_4SH.svg", width = 18, height = 16, units = "cm", device = svg)
 ggsave("Fig1_catch_pyramids_years_4SH.png", width = 18, height = 16, units = "cm", device = png)
