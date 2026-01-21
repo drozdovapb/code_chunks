@@ -77,14 +77,14 @@ ggsave("Fig1_catch_pyramids_years.svg", width = 19.5, height = 9.25, units = "cm
 
 ## for SH's dissertaiton
 
-ggplot(datadepth, aes(y = numberwithspecies, x = `Depth,.m`, fill=Species, col=Species)) + 
+datadepth$Depth <- factor(datadepth$`Depth,.m`)
+
+ggplot(datadepth, aes(y = numberwithspecies, x = Depth, fill=Species, col=Species)) + 
   theme_bw(base_size = 12) + 
   scale_fill_manual(values = c("orange", "beige")) +
   scale_color_manual(values = c("black", "red4")) +
   geom_bar(stat = "identity", aes(col = Species)) +
-  #geom_point(cex = 0.3, alpha=.9, position = position_jitter(width = .1, h = 0)) + 
-  xlab("Depth, m") +
-  scale_x_reverse(breaks = c(1000, 750, 500, 300, 200, 150, 100, 50)) +
+  scale_x_discrete(limits = rev(levels(datadepth$Depth))) +
   coord_flip()   +
   ylab("Количество животных") + xlab("Глубина, м") + 
   scale_y_continuous(breaks = c(-750, -500, -250, 0, 250, 500),
@@ -94,5 +94,6 @@ ggplot(datadepth, aes(y = numberwithspecies, x = `Depth,.m`, fill=Species, col=S
         strip.text.y = element_text(size = 12),
         legend.position="none")
 
-ggsave("Fig1_catch_pyramids_years_4SH.svg", width = 18, height = 16, units = "cm", device = svg)
-ggsave("Fig1_catch_pyramids_years_4SH.png", width = 18, height = 16, units = "cm", device = png)
+ggsave("Fig1_catch_4SH.svg", width = 18, height = 9, units = "cm", device = svg)
+ggsave("Fig1_catch_4SH.png", width = 18, height = 9, units = "cm", device = png)
+
