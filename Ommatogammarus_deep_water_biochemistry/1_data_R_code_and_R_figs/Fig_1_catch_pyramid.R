@@ -50,7 +50,7 @@ datadepth$numberwithspecies <- datadepth$Approx..number.of.animals
 datadepth[datadepth$Species == "O. flavus", "numberwithspecies"] <- 
   datadepth[datadepth$Species == "O. flavus", "Approx..number.of.animals"] * (-1)
 
-ggplot(datadepth, aes(y = numberwithspecies, x = `Depth,.m`, fill=Species, col=Species)) + 
+p1 <- ggplot(datadepth, aes(y = numberwithspecies, x = `Depth,.m`, fill=Species, col=Species)) + 
   theme_bw(base_size = 12) + 
   scale_fill_manual(values = c("orange", "beige")) +
   scale_color_manual(values = c("black", "red4")) +
@@ -70,5 +70,11 @@ ggplot(datadepth, aes(y = numberwithspecies, x = `Depth,.m`, fill=Species, col=S
 #        legend.text = element_text(face = "italic", size = 12),
 #        legend.background = element_rect(fill = "lightgrey"))
 
+p1
 #ggsave("Fig1_catch_pyramids_years.png", width = 20, height = 10, units = "cm")
 ggsave("Fig1_catch_pyramids_years.svg", width = 19.5, height = 9.25, units = "cm")
+
+## for SH's dissertaiton
+p1 + ylab("Количество животных") + xlab("Глубина, м")
+ggsave("Fig1_catch_pyramids_years_4SH.svg", width = 18, height = 16, units = "cm", device = svg)
+ggsave("Fig1_catch_pyramids_years_4SH.png", width = 18, height = 16, units = "cm", device = png)
