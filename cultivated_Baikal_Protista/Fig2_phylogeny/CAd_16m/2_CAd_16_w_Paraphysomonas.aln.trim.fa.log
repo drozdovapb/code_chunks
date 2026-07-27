@@ -1,0 +1,203 @@
+IQ-TREE multicore version 2.0.7 for Linux 64-bit built Jan 21 2022
+Developed by Bui Quang Minh, Nguyen Lam Tung, Olga Chernomor,
+Heiko Schmidt, Dominik Schrempf, Michael Woodhams.
+
+Host:    drozdovapb-HP-17-by1xxx (AVX2, FMA3, 11 GB RAM)
+Command: iqtree2 -s 2_CAd_16_w_Paraphysomonas.aln.trim.fa -alrt 1000 -abayes
+Seed:    890170 (Using SPRNG - Scalable Parallel Random Number Generator)
+Time:    Tue Jul 21 21:19:16 2026
+Kernel:  AVX+FMA - 1 threads (8 CPU cores detected)
+
+HINT: Use -nt option to specify number of threads because your CPU has 8 cores!
+HINT: -nt AUTO will automatically determine the best number of threads to use.
+
+Reading alignment file 2_CAd_16_w_Paraphysomonas.aln.trim.fa ... Fasta format detected
+Alignment most likely contains DNA/RNA sequences
+Alignment has 11 sequences with 1060 columns, 101 distinct patterns
+46 parsimony-informative, 82 singleton sites, 932 constant sites
+                                             Gap/Ambiguity  Composition  p-value
+   1  JQ967314_Paraphysomonas_vulgaris_vulgaris      6.98%    passed     89.54%
+   2  JQ967296_Paraphysomonas_variosa                0.57%    passed     32.90%
+   3  PV211307_Paraphysomonas_sp._isolate_CAd-16m    5.57%    passed     97.25%
+   4  AB022864_Paraphysomonas_sp._HT3                5.38%    passed     98.60%
+   5  Z28335_Paraphysomonas_aff_longispina_SOTON1    5.28%    passed     97.93%
+   6  JQ967305_Paraphysomonas_longispina             5.38%    passed     97.85%
+   7  JQ967306_Paraphysomonas_stylata_limnetica      5.28%    passed     99.75%
+   8  JQ967307_Paraphysomonas_stylata_stylata        5.28%    passed     99.75%
+   9  JQ967308_Paraphysomonas_solis_crocotilla       5.19%    passed     99.33%
+  10  JQ967309_Paraphysomonas_solis_solis            5.57%    passed     99.63%
+  11  JQ967310_Paraphysomonas_dimoprha               5.66%    passed     98.70%
+****  TOTAL                                          5.10%  0 sequences failed composition chi2 test (p-value<5%; df=3)
+
+
+Create initial parsimony tree by phylogenetic likelihood library (PLL)... 0.000 seconds
+Perform fast likelihood tree search using GTR+I+G model...
+Estimate model parameters (epsilon = 5.000)
+Perform nearest neighbor interchange...
+Estimate model parameters (epsilon = 1.000)
+1. Initial log-likelihood: -2291.085
+Optimal log-likelihood: -2291.017
+Rate parameters:  A-C: 0.00010  A-G: 4.09277  A-T: 5.52660  C-G: 0.10017  C-T: 7.00414  G-T: 1.00000
+Base frequencies:  A: 0.309  C: 0.149  G: 0.222  T: 0.320
+Proportion of invariable sites: 0.433
+Gamma shape alpha: 0.161
+Parameters optimization took 1 rounds (0.004 sec)
+Time for fast ML tree search: 0.025 seconds
+
+NOTE: ModelFinder requires 0 MB RAM!
+ModelFinder will test up to 286 DNA models (sample size: 1060) ...
+ No. Model         -LnL         df  AIC          AICc         BIC
+  1  GTR+F         2349.579     27  4753.157     4754.622     4887.240
+  2  GTR+F+I       2291.406     28  4638.812     4640.388     4777.861
+  3  GTR+F+G4      2296.821     28  4649.643     4651.218     4788.691
+  4  GTR+F+I+G4    2291.024     29  4640.049     4641.738     4784.064
+  5  GTR+F+R2      2291.727     29  4641.454     4643.143     4785.468
+  6  GTR+F+R3      2290.515     31  4643.030     4644.960     4796.977
+ 15  SYM+I         2346.593     25  4743.185     4744.443     4867.336
+ 17  SYM+I+G4      2346.637     26  4745.275     4746.634     4874.391
+ 18  SYM+R2        2350.588     26  4753.176     4754.535     4882.292
+ 28  TVM+F+I       2292.782     27  4639.565     4641.030     4773.647
+ 30  TVM+F+I+G4    2292.499     28  4640.997     4642.572     4780.046
+ 31  TVM+F+R2      2294.752     28  4645.504     4647.080     4784.553
+ 41  TVMe+I        2346.830     24  4741.659     4742.819     4860.844
+ 43  TVMe+I+G4     2346.927     25  4743.854     4745.111     4868.005
+ 44  TVMe+R2       2351.012     25  4752.023     4753.280     4876.174
+ 54  TIM3+F+I      2303.833     26  4659.665     4661.024     4788.782
+ 56  TIM3+F+I+G4   2303.225     27  4660.449     4661.914     4794.532
+ 57  TIM3+F+R2     2302.386     27  4658.771     4660.236     4792.854
+ 67  TIM3e+I       2363.768     23  4773.535     4774.601     4887.754
+ 69  TIM3e+I+G4    2363.641     24  4775.281     4776.441     4894.466
+ 70  TIM3e+R2      2365.809     24  4779.619     4780.778     4898.804
+ 80  TIM2+F+I      2305.303     26  4662.607     4663.966     4791.723
+ 82  TIM2+F+I+G4   2303.759     27  4661.517     4662.982     4795.600
+ 83  TIM2+F+R2     2300.406     27  4654.813     4656.278     4788.895
+ 93  TIM2e+I       2372.238     23  4790.477     4791.543     4904.696
+ 95  TIM2e+I+G4    2371.754     24  4791.507     4792.667     4910.692
+ 96  TIM2e+R2      2372.085     24  4792.170     4793.329     4911.354
+106  TIM+F+I       2306.779     26  4665.558     4666.917     4794.674
+108  TIM+F+I+G4    2305.336     27  4664.672     4666.138     4798.755
+109  TIM+F+R2      2302.383     27  4658.765     4660.230     4792.848
+119  TIMe+I        2375.827     23  4797.654     4798.720     4911.873
+121  TIMe+I+G4     2375.503     24  4799.006     4800.166     4918.191
+122  TIMe+R2       2375.923     24  4799.846     4801.005     4919.030
+132  TPM3u+F+I     2305.387     25  4660.774     4662.031     4784.924
+134  TPM3u+F+I+G4  2304.952     26  4661.903     4663.262     4791.020
+135  TPM3u+F+R2    2305.143     26  4662.285     4663.644     4791.402
+145  TPM3+F+I      2305.387     25  4660.774     4662.031     4784.924
+147  TPM3+F+I+G4   2304.952     26  4661.903     4663.262     4791.020
+148  TPM3+F+R2     2305.143     26  4662.285     4663.644     4791.402
+158  TPM2u+F+I     2306.548     25  4663.095     4664.353     4787.246
+160  TPM2u+F+I+G4  2305.605     26  4663.209     4664.568     4792.326
+161  TPM2u+F+R2    2304.273     26  4660.547     4661.906     4789.663
+171  TPM2+F+I      2306.548     25  4663.095     4664.353     4787.246
+173  TPM2+F+I+G4   2305.605     26  4663.209     4664.568     4792.326
+174  TPM2+F+R2     2304.273     26  4660.547     4661.906     4789.663
+184  K3Pu+F+I      2308.021     25  4666.042     4667.300     4790.193
+186  K3Pu+F+I+G4   2307.231     26  4666.463     4667.822     4795.579
+187  K3Pu+F+R2     2306.118     26  4664.235     4665.595     4793.352
+197  K3P+I         2375.911     22  4795.822     4796.797     4905.074
+199  K3P+I+G4      2375.656     23  4797.311     4798.377     4911.530
+200  K3P+R2        2376.323     23  4798.647     4799.712     4912.865
+210  TN+F+I        2317.076     25  4684.152     4685.409     4808.302
+212  TN+F+I+G4     2315.275     26  4682.550     4683.910     4811.667
+213  TN+F+R2       2311.028     26  4674.055     4675.414     4803.172
+223  TNe+I         2388.630     22  4821.260     4822.236     4930.513
+225  TNe+I+G4      2387.932     23  4821.864     4822.930     4936.083
+226  TNe+R2        2387.174     23  4820.348     4821.413     4934.566
+236  HKY+F+I       2318.618     24  4685.235     4686.395     4804.420
+238  HKY+F+I+G4    2317.281     25  4684.562     4685.819     4808.712
+239  HKY+F+R2      2314.399     25  4678.798     4680.055     4802.948
+249  K2P+I         2388.801     21  4819.601     4820.491     4923.888
+251  K2P+I+G4      2388.169     22  4820.338     4821.314     4929.591
+252  K2P+R2        2387.596     22  4819.193     4820.169     4928.445
+262  F81+F+I       2329.880     23  4705.759     4706.825     4819.978
+264  F81+F+I+G4    2328.954     24  4705.908     4707.067     4825.092
+265  F81+F+R2      2327.580     24  4703.160     4704.319     4822.344
+275  JC+I          2397.751     20  4835.502     4836.310     4934.822
+277  JC+I+G4       2397.230     21  4836.460     4837.350     4940.746
+278  JC+R2         2396.982     21  4835.965     4836.855     4940.251
+Akaike Information Criterion:           GTR+F+I
+Corrected Akaike Information Criterion: GTR+F+I
+Bayesian Information Criterion:         TVM+F+I
+Best-fit model: TVM+F+I chosen according to BIC
+
+All model information printed to 2_CAd_16_w_Paraphysomonas.aln.trim.fa.model.gz
+CPU time for ModelFinder: 1.081 seconds (0h:0m:1s)
+Wall-clock time for ModelFinder: 1.120 seconds (0h:0m:1s)
+
+NOTE: 0 MB RAM (0 GB) is required!
+Estimate model parameters (epsilon = 0.100)
+1. Initial log-likelihood: -2292.782
+Optimal log-likelihood: -2292.745
+Rate parameters:  A-C: 0.00010  A-G: 5.56679  A-T: 5.89386  C-G: 0.17312  C-T: 5.56679  G-T: 1.00000
+Base frequencies:  A: 0.309  C: 0.149  G: 0.222  T: 0.320
+Proportion of invariable sites: 0.828
+Parameters optimization took 1 rounds (0.001 sec)
+Computing ML distances based on estimated model parameters... 0.001 sec
+Computing BIONJ tree...
+0.000 seconds
+Log-likelihood of BIONJ tree: -2293.061
+--------------------------------------------------------------------
+|             INITIALIZING CANDIDATE TREE SET                      |
+--------------------------------------------------------------------
+Generating 98 parsimony trees... 0.025 second
+Computing log-likelihood of 96 initial trees ... 0.021 seconds
+Current best score: -2292.745
+
+Do NNI search on 20 best initial trees
+Estimate model parameters (epsilon = 0.100)
+BETTER TREE FOUND at iteration 1: -2292.734
+BETTER TREE FOUND at iteration 3: -2292.734
+BETTER TREE FOUND at iteration 6: -2292.734
+UPDATE BEST LOG-LIKELIHOOD: -2292.734
+Iteration 10 / LogL: -2292.734 / Time: 0h:0m:0s
+Iteration 20 / LogL: -2292.734 / Time: 0h:0m:0s
+Finish initializing candidate tree set (4)
+Current best tree score: -2292.734 / CPU time: 0.100
+Number of iterations: 20
+--------------------------------------------------------------------
+|               OPTIMIZING CANDIDATE TREE SET                      |
+--------------------------------------------------------------------
+UPDATE BEST LOG-LIKELIHOOD: -2292.734
+Iteration 30 / LogL: -2292.734 / Time: 0h:0m:0s (0h:0m:0s left)
+UPDATE BEST LOG-LIKELIHOOD: -2292.734
+Iteration 40 / LogL: -2313.559 / Time: 0h:0m:0s (0h:0m:0s left)
+Iteration 50 / LogL: -2292.736 / Time: 0h:0m:0s (0h:0m:0s left)
+Iteration 60 / LogL: -2292.734 / Time: 0h:0m:0s (0h:0m:0s left)
+Iteration 70 / LogL: -2292.734 / Time: 0h:0m:0s (0h:0m:0s left)
+Iteration 80 / LogL: -2292.734 / Time: 0h:0m:0s (0h:0m:0s left)
+Iteration 90 / LogL: -2292.735 / Time: 0h:0m:0s (0h:0m:0s left)
+Iteration 100 / LogL: -2292.734 / Time: 0h:0m:0s (0h:0m:0s left)
+TREE SEARCH COMPLETED AFTER 107 ITERATIONS / Time: 0h:0m:0s
+
+--------------------------------------------------------------------
+|                    FINALIZING TREE SEARCH                        |
+--------------------------------------------------------------------
+Performs final model parameters optimization
+Estimate model parameters (epsilon = 0.010)
+1. Initial log-likelihood: -2292.734
+Optimal log-likelihood: -2292.727
+Rate parameters:  A-C: 0.00010  A-G: 5.63937  A-T: 5.95371  C-G: 0.15585  C-T: 5.63937  G-T: 1.00000
+Base frequencies:  A: 0.309  C: 0.149  G: 0.222  T: 0.320
+Proportion of invariable sites: 0.828
+Parameters optimization took 1 rounds (0.001 sec)
+BEST SCORE FOUND : -2292.727
+
+Testing tree branches by SH-like aLRT with 1000 replicates...
+Testing tree branches by aBayes parametric test...
+0.042 sec.
+Total tree length: 0.264
+
+Total number of iterations: 107
+CPU time used for tree search: 0.302 sec (0h:0m:0s)
+Wall-clock time used for tree search: 0.334 sec (0h:0m:0s)
+Total CPU time used: 0.355 sec (0h:0m:0s)
+Total wall-clock time used: 0.387 sec (0h:0m:0s)
+
+Analysis results written to: 
+  IQ-TREE report:                2_CAd_16_w_Paraphysomonas.aln.trim.fa.iqtree
+  Maximum-likelihood tree:       2_CAd_16_w_Paraphysomonas.aln.trim.fa.treefile
+  Likelihood distances:          2_CAd_16_w_Paraphysomonas.aln.trim.fa.mldist
+  Screen log file:               2_CAd_16_w_Paraphysomonas.aln.trim.fa.log
+
+Date and Time: Tue Jul 21 21:19:18 2026

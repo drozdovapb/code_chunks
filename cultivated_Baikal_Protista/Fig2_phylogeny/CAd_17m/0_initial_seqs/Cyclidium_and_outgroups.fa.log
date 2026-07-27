@@ -1,0 +1,188 @@
+IQ-TREE multicore version 2.0.7 for Linux 64-bit built Jan 21 2022
+Developed by Bui Quang Minh, Nguyen Lam Tung, Olga Chernomor,
+Heiko Schmidt, Dominik Schrempf, Michael Woodhams.
+
+Host:    drozdovapb-HP-17-by1xxx (AVX2, FMA3, 11 GB RAM)
+Command: iqtree2 -s Cyclidium_and_outgroups.fa -alrt 1000 -abayes -o FJ868180_Cristigera_media -redo
+Seed:    755396 (Using SPRNG - Scalable Parallel Random Number Generator)
+Time:    Wed Feb 26 12:42:28 2025
+Kernel:  AVX+FMA - 1 threads (8 CPU cores detected)
+
+HINT: Use -nt option to specify number of threads because your CPU has 8 cores!
+HINT: -nt AUTO will automatically determine the best number of threads to use.
+
+Reading alignment file Cyclidium_and_outgroups.fa ... Fasta format detected
+Alignment most likely contains DNA/RNA sequences
+Alignment has 15 sequences with 1816 columns, 445 distinct patterns
+267 parsimony-informative, 232 singleton sites, 1317 constant sites
+                                                       Gap/Ambiguity  Composition  p-value
+   1  CAd_17_long                                             41.52%    passed     13.78%
+   2  MT001894_Cyclidium_sp._MMP-2020a_isolate_PMM-20190909    3.74%    passed     99.51%
+   3  MN524102_Cyclidium_vorax                                 9.97%    passed     56.99%
+   4  FJ868181_Cyclidium_plouneouri                            3.08%    passed     50.06%
+   5  EU032356_Cyclidium_glaucoma                              3.58%    passed     71.28%
+   6  KF256820_Protocyclidium_citrullus                        3.69%    passed     84.23%
+   7  KY886367_Cyclidium_marinum                               3.52%    passed     99.83%
+   8  KF256817_Cyclidium_varibonneti                           3.52%    passed     99.73%
+   9  HM236340_Ancistrum_crassum                               3.47%    passed     99.98%
+  10  JQ956553_Cyclidium_marinum                               3.58%    passed     99.56%
+  11  Z29517_Cyclidium_porcatum                                5.67%    passed     96.25%
+  12  KX853100_Cyclidium_sinicum                               7.54%    passed     73.00%
+  13  KF256822_Protocyclidium_sinica                           0.83%    failed      4.50%
+  14  FJ868185_Falcicyclidium_fangi                            3.14%    passed     52.82%
+  15  FJ868180_Cristigera_media                                3.74%    passed     77.52%
+****  TOTAL                                                    6.71%  1 sequences failed composition chi2 test (p-value<5%; df=3)
+
+
+Create initial parsimony tree by phylogenetic likelihood library (PLL)... 0.001 seconds
+Perform fast likelihood tree search using GTR+I+G model...
+Estimate model parameters (epsilon = 5.000)
+Perform nearest neighbor interchange...
+Estimate model parameters (epsilon = 1.000)
+1. Initial log-likelihood: -6605.996
+Optimal log-likelihood: -6605.962
+Rate parameters:  A-C: 1.25382  A-G: 2.08949  A-T: 1.03152  C-G: 0.89623  C-T: 3.26227  G-T: 1.00000
+Base frequencies:  A: 0.282  C: 0.189  G: 0.252  T: 0.277
+Proportion of invariable sites: 0.361
+Gamma shape alpha: 0.457
+Parameters optimization took 1 rounds (0.008 sec)
+Time for fast ML tree search: 0.075 seconds
+
+NOTE: ModelFinder requires 2 MB RAM!
+ModelFinder will test up to 286 DNA models (sample size: 1816) ...
+ No. Model         -LnL         df  AIC          AICc         BIC
+  1  GTR+F         6901.559     35  13873.118    13874.534    14065.772
+  2  GTR+F+I       6633.598     36  13339.195    13340.693    13537.353
+  3  GTR+F+G4      6614.525     36  13301.051    13302.548    13499.209
+  4  GTR+F+I+G4    6605.943     37  13285.886    13287.467    13489.548
+  5  GTR+F+R2      6604.468     37  13282.937    13284.518    13486.599
+  6  GTR+F+R3      6603.534     39  13285.068    13286.825    13499.739
+ 17  SYM+I+G4      6631.336     34  13330.673    13332.009    13517.822
+ 18  SYM+R2        6628.612     34  13325.223    13326.560    13512.373
+ 30  TVM+F+I+G4    6611.221     36  13294.442    13295.939    13492.600
+ 31  TVM+F+R2      6608.834     36  13289.669    13291.166    13487.827
+ 43  TVMe+I+G4     6632.519     33  13331.038    13332.297    13512.683
+ 44  TVMe+R2       6629.917     33  13325.833    13327.092    13507.478
+ 56  TIM3+F+I+G4   6607.168     35  13284.336    13285.751    13476.989
+ 57  TIM3+F+R2     6604.704     35  13279.409    13280.824    13472.062
+ 69  TIM3e+I+G4    6634.039     32  13332.078    13333.263    13508.219
+ 70  TIM3e+R2      6630.944     32  13325.887    13327.072    13502.028
+ 82  TIM2+F+I+G4   6606.458     35  13282.916    13284.332    13475.570
+ 83  TIM2+F+R2     6604.036     35  13278.072    13279.488    13470.726
+ 95  TIM2e+I+G4    6634.278     32  13332.555    13333.740    13508.696
+ 96  TIM2e+R2      6631.792     32  13327.583    13328.768    13503.724
+108  TIM+F+I+G4    6606.921     35  13283.842    13285.258    13476.496
+109  TIM+F+R2      6604.351     35  13278.702    13280.118    13471.356
+121  TIMe+I+G4     6636.140     32  13336.280    13337.465    13512.421
+122  TIMe+R2       6633.340     32  13330.680    13331.864    13506.820
+134  TPM3u+F+I+G4  6612.322     34  13292.644    13293.981    13479.794
+135  TPM3u+F+R2    6609.739     34  13287.477    13288.813    13474.626
+147  TPM3+F+I+G4   6612.322     34  13292.644    13293.981    13479.794
+148  TPM3+F+R2     6609.739     34  13287.477    13288.813    13474.626
+160  TPM2u+F+I+G4  6611.711     34  13291.421    13292.758    13478.571
+161  TPM2u+F+R2    6609.243     34  13286.485    13287.822    13473.635
+173  TPM2+F+I+G4   6611.711     34  13291.421    13292.758    13478.571
+174  TPM2+F+R2     6609.243     34  13286.485    13287.822    13473.635
+186  K3Pu+F+I+G4   6612.040     34  13292.080    13293.416    13479.229
+187  K3Pu+F+R2     6609.411     34  13286.822    13288.159    13473.972
+199  K3P+I+G4      6637.208     31  13336.416    13337.528    13507.052
+200  K3P+R2        6634.496     31  13330.992    13332.104    13501.628
+212  TN+F+I+G4     6607.237     34  13282.473    13283.810    13469.623
+213  TN+F+R2       6604.646     34  13277.292    13278.628    13464.441
+225  TNe+I+G4      6636.407     31  13334.815    13335.927    13505.451
+226  TNe+R2        6633.571     31  13329.143    13330.255    13499.779
+238  HKY+F+I+G4    6612.346     33  13290.693    13291.952    13472.338
+239  HKY+F+R2      6609.725     33  13285.450    13286.709    13467.095
+251  K2P+I+G4      6637.475     30  13334.949    13335.991    13500.081
+252  K2P+R2        6634.732     30  13329.464    13330.506    13494.596
+264  F81+F+I+G4    6675.204     32  13414.409    13415.593    13590.549
+265  F81+F+R2      6673.280     32  13410.559    13411.744    13586.700
+277  JC+I+G4       6699.055     29  13456.110    13457.084    13615.737
+278  JC+R2         6697.049     29  13452.099    13453.073    13611.726
+Akaike Information Criterion:           TN+F+R2
+Corrected Akaike Information Criterion: TN+F+R2
+Bayesian Information Criterion:         TN+F+R2
+Best-fit model: TN+F+R2 chosen according to BIC
+
+All model information printed to Cyclidium_and_outgroups.fa.model.gz
+CPU time for ModelFinder: 0.830 seconds (0h:0m:0s)
+Wall-clock time for ModelFinder: 0.835 seconds (0h:0m:0s)
+
+NOTE: 0 MB RAM (0 GB) is required!
+Estimate model parameters (epsilon = 0.100)
+1. Initial log-likelihood: -6604.646
+Optimal log-likelihood: -6604.643
+Rate parameters:  A-C: 1.00000  A-G: 2.06435  A-T: 1.00000  C-G: 1.00000  C-T: 3.15567  G-T: 1.00000
+Base frequencies:  A: 0.282  C: 0.189  G: 0.252  T: 0.277
+Site proportion and rates:  (0.832,0.223) (0.168,4.857)
+Parameters optimization took 1 rounds (0.005 sec)
+Computing ML distances based on estimated model parameters... 0.002 sec
+Computing BIONJ tree...
+0.000 seconds
+Log-likelihood of BIONJ tree: -6610.517
+--------------------------------------------------------------------
+|             INITIALIZING CANDIDATE TREE SET                      |
+--------------------------------------------------------------------
+Generating 98 parsimony trees... 0.073 second
+Computing log-likelihood of 96 initial trees ... 0.093 seconds
+Current best score: -6604.643
+
+Do NNI search on 20 best initial trees
+Estimate model parameters (epsilon = 0.100)
+BETTER TREE FOUND at iteration 1: -6604.641
+UPDATE BEST LOG-LIKELIHOOD: -6604.640
+UPDATE BEST LOG-LIKELIHOOD: -6604.640
+UPDATE BEST LOG-LIKELIHOOD: -6604.640
+UPDATE BEST LOG-LIKELIHOOD: -6604.639
+Iteration 10 / LogL: -6604.639 / Time: 0h:0m:0s
+UPDATE BEST LOG-LIKELIHOOD: -6604.639
+UPDATE BEST LOG-LIKELIHOOD: -6604.638
+Iteration 20 / LogL: -6604.652 / Time: 0h:0m:0s
+Finish initializing candidate tree set (1)
+Current best tree score: -6604.638 / CPU time: 0.397
+Number of iterations: 20
+--------------------------------------------------------------------
+|               OPTIMIZING CANDIDATE TREE SET                      |
+--------------------------------------------------------------------
+Iteration 30 / LogL: -6604.639 / Time: 0h:0m:0s (0h:0m:1s left)
+Iteration 40 / LogL: -6609.852 / Time: 0h:0m:0s (0h:0m:1s left)
+Iteration 50 / LogL: -6604.638 / Time: 0h:0m:0s (0h:0m:0s left)
+Iteration 60 / LogL: -6607.300 / Time: 0h:0m:0s (0h:0m:0s left)
+UPDATE BEST LOG-LIKELIHOOD: -6604.638
+Iteration 70 / LogL: -6618.029 / Time: 0h:0m:1s (0h:0m:0s left)
+Iteration 80 / LogL: -6607.215 / Time: 0h:0m:1s (0h:0m:0s left)
+Iteration 90 / LogL: -6609.853 / Time: 0h:0m:1s (0h:0m:0s left)
+Iteration 100 / LogL: -6607.298 / Time: 0h:0m:1s (0h:0m:0s left)
+TREE SEARCH COMPLETED AFTER 102 ITERATIONS / Time: 0h:0m:1s
+
+--------------------------------------------------------------------
+|                    FINALIZING TREE SEARCH                        |
+--------------------------------------------------------------------
+Performs final model parameters optimization
+Estimate model parameters (epsilon = 0.010)
+1. Initial log-likelihood: -6604.638
+Optimal log-likelihood: -6604.638
+Rate parameters:  A-C: 1.00000  A-G: 2.06502  A-T: 1.00000  C-G: 1.00000  C-T: 3.15782  G-T: 1.00000
+Base frequencies:  A: 0.282  C: 0.189  G: 0.252  T: 0.277
+Site proportion and rates:  (0.832,0.222) (0.168,4.853)
+Parameters optimization took 1 rounds (0.004 sec)
+BEST SCORE FOUND : -6604.638
+
+Testing tree branches by SH-like aLRT with 1000 replicates...
+Testing tree branches by aBayes parametric test...
+0.361 sec.
+Total tree length: 0.732
+
+Total number of iterations: 102
+CPU time used for tree search: 1.389 sec (0h:0m:1s)
+Wall-clock time used for tree search: 1.437 sec (0h:0m:1s)
+Total CPU time used: 1.765 sec (0h:0m:1s)
+Total wall-clock time used: 1.818 sec (0h:0m:1s)
+
+Analysis results written to: 
+  IQ-TREE report:                Cyclidium_and_outgroups.fa.iqtree
+  Maximum-likelihood tree:       Cyclidium_and_outgroups.fa.treefile
+  Likelihood distances:          Cyclidium_and_outgroups.fa.mldist
+  Screen log file:               Cyclidium_and_outgroups.fa.log
+
+Date and Time: Wed Feb 26 12:42:31 2025
